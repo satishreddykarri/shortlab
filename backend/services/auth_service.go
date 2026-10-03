@@ -15,11 +15,13 @@ import (
 
 type AuthService struct {
 	userRepository *repositories.UserRepository
+	emailService   *EmailService
 }
 
-func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
+func NewAuthService(userRepository *repositories.UserRepository, emailService *EmailService) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
+		emailService:   emailService,
 	}
 }
 
@@ -30,6 +32,10 @@ func (s *AuthService) Register(
 	password string,
 	confirmPassword string,
 ) (*models.User, error) {
+
+	if err := validatePassword(password); err != nil {
+		return nil, err
+	}
 
 	if password != confirmPassword {
 		return nil, errors.New("passwords do not match")
@@ -75,6 +81,13 @@ func (s *AuthService) Register(
 		return nil, err
 	}
 
+	if err := s.emailService.SendVerificationCode(
+		user.Email,
+		verificationCode,
+	); err != nil {
+		return nil, err
+	}
+
 	return user, nil
 }
 
@@ -104,4 +117,35 @@ func binaryRead(number *uint32) error {
 		uint32(buffer[3])
 
 	return nil
+}
+
+// Verifies the user's email using the stored code and its expiration time.
+func (s *AuthService) VerifyEmail(
+	email string,
+	code string,
+) error {
+	user, err := s.userRepository.GetByEmail(email)
+
+	if err != nil {
+		return err
+	}
+
+	if user.IsEmailVerified {
+		return errors.New("email is already verified")
+	}
+
+	if user.VerificationCode != code {
+		return errors.New("invalid verification code")
+	}
+
+	if user.VerificationCodeExpiry == nil ||
+		time.Now().After(*user.VerificationCodeExpiry) {
+		return errors.New("verification code has expired")
+	}
+
+	user.IsEmailVerified = true
+	user.VerificationCode = ""
+	user.VerificationCodeExpiry = nil
+
+	return s.userRepository.Update(user)
 }

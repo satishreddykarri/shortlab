@@ -15,6 +15,7 @@ func SetupRouter(authService *services.AuthService) *gin.Engine {
 	authRoutes := router.Group("/api/auth")
 	{
 		authRoutes.POST("/register", authHandler.Register)
+		authRoutes.POST("/verify-email", authHandler.VerifyEmail)
 	}
 
 	return router

@@ -32,7 +32,8 @@ func main() {
 
 	// Build the authentication dependency chain.
 	userRepository := repositories.NewUserRepository(database.DB)
-	authService := services.NewAuthService(userRepository)
+	emailService := services.NewEmailService()
+	authService := services.NewAuthService(userRepository, emailService)
 
 	router := routes.SetupRouter(authService)
 

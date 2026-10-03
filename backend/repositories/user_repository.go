@@ -63,3 +63,8 @@ func (r *UserRepository) GetByID(id uuid.UUID) (*models.User, error) {
 
 	return &user, nil
 }
+
+// Saves the updated verification state of a user.
+func (r *UserRepository) Update(user *models.User) error {
+	return r.db.Save(user).Error
+}

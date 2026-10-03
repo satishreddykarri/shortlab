@@ -54,3 +54,36 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		"user_id": user.ID,
 	})
 }
+
+type VerifyEmailRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	Code  string `json:"code" binding:"required,len=6"`
+}
+
+// Verifies the email address associated with a registration.
+func (h *AuthHandler) VerifyEmail(c *gin.Context) {
+	var request VerifyEmailRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err := h.authService.VerifyEmail(
+		request.Email,
+		request.Code,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "email verified successfully",
+	})
+}
