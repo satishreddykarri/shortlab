@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: shortlab-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: shortlab
+      POSTGRES_PASSWORD: shortlab_dev
+      POSTGRES_DB: shortlab
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
