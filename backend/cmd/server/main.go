@@ -24,6 +24,7 @@ func main() {
 	err = database.DB.AutoMigrate(
 		&models.User{},
 		&models.URL{},
+		&models.URLClick{},
 	)
 
 	if err != nil {
@@ -32,10 +33,18 @@ func main() {
 
 	// Build the authentication dependency chain.
 	userRepository := repositories.NewUserRepository(database.DB)
+	urlService := services.NewURLService(
+		repositories.NewURLRepository(database.DB),
+	)
+	clickRepository := repositories.NewURLClickRepository(database.DB)
+	clickService := services.NewURLClickService(
+		clickRepository,
+	)
 	emailService := services.NewEmailService()
-	authService := services.NewAuthService(userRepository, emailService)
+	jwtService := services.NewJWTService()
+	authService := services.NewAuthService(userRepository, emailService, jwtService)
 
-	router := routes.SetupRouter(authService)
+	router := routes.SetupRouter(authService, urlService, clickService, jwtService)
 
 	log.Println("ShortLab backend starting on :8080")
 

@@ -60,3 +60,26 @@ func (r *URLRepository) Delete(id uint64) error {
 
 	return result.Error
 }
+
+func (r *URLRepository) DeleteByIDAndUserID(
+	id uint64,
+	userID uuid.UUID,
+) error {
+	result := r.db.
+		Where(
+			constants.URLColumnID+" = ? AND "+constants.URLColumnUserID+" = ?",
+			id,
+			userID,
+		).
+		Delete(&models.URL{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
+}

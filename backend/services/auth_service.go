@@ -16,12 +16,14 @@ import (
 type AuthService struct {
 	userRepository *repositories.UserRepository
 	emailService   *EmailService
+	jwtService     *JWTService
 }
 
-func NewAuthService(userRepository *repositories.UserRepository, emailService *EmailService) *AuthService {
+func NewAuthService(userRepository *repositories.UserRepository, emailService *EmailService, jwtService *JWTService) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
 		emailService:   emailService,
+		jwtService:     jwtService,
 	}
 }
 
@@ -148,4 +150,36 @@ func (s *AuthService) VerifyEmail(
 	user.VerificationCodeExpiry = nil
 
 	return s.userRepository.Update(user)
+}
+
+// Authenticates a verified user and returns a signed JWT.
+func (s *AuthService) Login(
+	email string,
+	password string,
+) (string, error) {
+
+	user, err := s.userRepository.GetByEmail(email)
+	if err != nil {
+		return "", errors.New("invalid email or password")
+	}
+
+	if !user.IsEmailVerified {
+		return "", errors.New("email is not verified")
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(password),
+	)
+
+	if err != nil {
+		return "", errors.New("invalid email or password")
+	}
+
+	token, err := s.jwtService.GenerateToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

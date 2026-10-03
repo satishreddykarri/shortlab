@@ -1,6 +1,7 @@
 package constants
 
 const (
+	URLColumnID        = "id"
 	URLColumnShortCode = "short_code"
 	URLColumnUserID    = "user_id"
 	URLColumnCreatedAt = "created_at"

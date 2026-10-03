@@ -12,7 +12,7 @@ type URL struct {
 	UserID uuid.UUID `gorm:"type:uuid;not null;index"`
 
 	OriginalURL string `gorm:"type:text;not null"`
-	ShortCode   string `gorm:"size:20;uniqueIndex;not null"`
+	ShortCode   string `gorm:"size:64;uniqueIndex;not null"`
 
 	Algorithm string `gorm:"size:20;not null"`
 
@@ -21,5 +21,6 @@ type URL struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	User User `gorm:"foreignKey:UserID"`
+	User   User       `gorm:"foreignKey:UserID"`
+	Clicks []URLClick `gorm:"foreignKey:URLID"`
 }
