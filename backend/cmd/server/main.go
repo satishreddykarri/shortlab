@@ -4,12 +4,15 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+
 	"github.com/satishreddykarri/shortlab/database"
 	"github.com/satishreddykarri/shortlab/models"
+	"github.com/satishreddykarri/shortlab/repositories"
+	"github.com/satishreddykarri/shortlab/routes"
+	"github.com/satishreddykarri/shortlab/services"
 )
 
 func main() {
-
 	err := godotenv.Load()
 
 	if err != nil {
@@ -17,6 +20,7 @@ func main() {
 	}
 
 	database.Connect()
+
 	err = database.DB.AutoMigrate(
 		&models.User{},
 		&models.URL{},
@@ -26,7 +30,15 @@ func main() {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
-	log.Println("Database migration completed successfully")
+	// Build the authentication dependency chain.
+	userRepository := repositories.NewUserRepository(database.DB)
+	authService := services.NewAuthService(userRepository)
 
-	log.Println("ShortLab backend starting...")
+	router := routes.SetupRouter(authService)
+
+	log.Println("ShortLab backend starting on :8080")
+
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }
