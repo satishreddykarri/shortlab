@@ -11,7 +11,11 @@ import (
 	"github.com/satishreddykarri/shortlab/routes"
 	"github.com/satishreddykarri/shortlab/services"
 )
-
+// @title ShortLab API
+// @version 1.0
+// @description Configurable URL shortening platform with multiple shortening strategies and analytics.
+// @host localhost:8080
+// @BasePath /
 func main() {
 	err := godotenv.Load()
 

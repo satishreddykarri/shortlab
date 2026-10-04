@@ -5,6 +5,8 @@ import (
 	"github.com/satishreddykarri/shortlab/handlers"
 	"github.com/satishreddykarri/shortlab/middleware"
 	"github.com/satishreddykarri/shortlab/services"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter(authService *services.AuthService, urlService *services.URLService, clickService *services.URLClickService, analyticsService *services.URLAnalyticsService, jwtService *services.JWTService) *gin.Engine {
@@ -32,6 +34,10 @@ func SetupRouter(authService *services.AuthService, urlService *services.URLServ
 		urlRoutes.GET("/:id", urlHandler.GetByID)
 	}
 	router.GET("/:shortCode", urlHandler.Redirect)
+	router.GET(
+		"/swagger/*any",
+		ginSwagger.WrapHandler(swaggerFiles.Handler),
+	)
 
 	return router
 }

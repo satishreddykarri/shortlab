@@ -1,0 +1,10 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: Configurable URL shortening platform with multiple shortening strategies
+    and analytics.
+  title: ShortLab API
+  version: "1.0"
+paths: {}
+swagger: "2.0"
