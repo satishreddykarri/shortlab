@@ -11,13 +11,14 @@ import (
 )
 
 var (
-	ErrInvalidAlgorithm     = errors.New("invalid shortening algorithm")
-	ErrCustomAliasRequired  = errors.New("custom alias is required")
-	ErrInvalidCustomAlias   = errors.New("custom alias must contain only letters, numbers, hyphens, and underscores")
-	ErrCustomAliasTooShort  = errors.New("custom alias must be at least 3 characters")
-	ErrCustomAliasTooLong   = errors.New("custom alias must not exceed 30 characters")
-	ErrInvalidOriginalURL   = errors.New("original URL must be a valid absolute http or https URL")
-	ErrExpirationInPast     = errors.New("expiration time must be in the future")
+	ErrInvalidAlgorithm       = errors.New("invalid shortening algorithm")
+	ErrCustomAliasRequired    = errors.New("custom alias is required")
+	ErrInvalidCustomAlias     = errors.New("custom alias must contain only letters, numbers, hyphens, and underscores")
+	ErrCustomAliasTooShort    = errors.New("custom alias must be at least 3 characters")
+	ErrCustomAliasTooLong     = errors.New("custom alias must not exceed 30 characters")
+	ErrInvalidOriginalURL     = errors.New("original URL must be a valid absolute http or https URL")
+	ErrExpirationInPast       = errors.New("expiration time must be in the future")
+	ErrShortCodeAlreadyExists = errors.New("short code already exists")
 )
 
 var customAliasPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)

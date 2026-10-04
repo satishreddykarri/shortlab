@@ -32,15 +32,11 @@ func (s *URLService) CreateShortURL(
 	expiresAt *time.Time,
 ) (*models.URL, error) {
 
-	if err := validateExpiration(expiresAt); err != nil {
-		return nil, err
-	}
-
 	if err := validateAlgorithm(algorithm); err != nil {
 		return nil, err
 	}
 
-	if err := validateOriginalURL(originalURL); err != nil {
+	if err := validateExpiration(expiresAt); err != nil {
 		return nil, err
 	}
 
@@ -54,40 +50,22 @@ func (s *URLService) CreateShortURL(
 		}
 	}
 
-	shortener, err := algorithms.NewShortener(algorithm)
-	if err != nil {
-		return nil, err
+	// Base62 needs the database-generated numeric ID.
+	if algorithm == constants.AlgorithmBase62 {
+		return s.createBase62URL(
+			userID,
+			originalURL,
+			expiresAt,
+		)
 	}
 
-	url := &models.URL{
-		UserID:      userID,
-		OriginalURL: originalURL,
-		Algorithm:   algorithm,
-		ExpiresAt:   expiresAt,
-	}
-
-	// Create the record first so PostgreSQL generates the numeric ID.
-	err = s.urlRepository.Create(url)
-	if err != nil {
-		return nil, err
-	}
-
-	shortCode, err := shortener.Generate(
-		strconv.FormatUint(url.ID, 10),
+	return s.createNonBase62URL(
+		userID,
+		originalURL,
+		algorithm,
+		customAlias,
+		expiresAt,
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	url.ShortCode = shortCode
-
-	// Save the generated short code against the URL record.
-	err = s.urlRepository.Update(url)
-	if err != nil {
-		return nil, err
-	}
-
-	return url, nil
 }
 
 func (s *URLService) GetUserURLs(
@@ -122,4 +100,99 @@ func (s *URLService) IsExpired(url *models.URL) bool {
 	}
 
 	return time.Now().After(*url.ExpiresAt)
+}
+
+func (s *URLService) createBase62URL(
+	userID uuid.UUID,
+	originalURL string,
+	expiresAt *time.Time,
+) (*models.URL, error) {
+
+	url := &models.URL{
+		UserID:      userID,
+		OriginalURL: originalURL,
+		Algorithm:   constants.AlgorithmBase62,
+		ExpiresAt:   expiresAt,
+	}
+
+	err := s.urlRepository.Create(url)
+	if err != nil {
+		return nil, err
+	}
+
+	shortener := algorithms.Base62Shortener{}
+
+	shortCode, err := shortener.Generate(
+		strconv.FormatUint(url.ID, 10),
+	)
+
+	if err != nil {
+		// Remove the incomplete record if generation unexpectedly fails.
+		_ = s.urlRepository.Delete(url.ID)
+		return nil, err
+	}
+
+	url.ShortCode = shortCode
+
+	err = s.urlRepository.Update(url)
+	if err != nil {
+		_ = s.urlRepository.Delete(url.ID)
+		return nil, err
+	}
+
+	return url, nil
+}
+
+func (s *URLService) createNonBase62URL(
+	userID uuid.UUID,
+	originalURL string,
+	algorithm string,
+	customAlias string,
+	expiresAt *time.Time,
+) (*models.URL, error) {
+
+	shortener, err := algorithms.NewShortener(algorithm)
+	if err != nil {
+		return nil, err
+	}
+
+	input := originalURL
+
+	if algorithm == constants.AlgorithmRandom ||
+		algorithm == constants.AlgorithmUUID {
+		input = ""
+	}
+
+	if algorithm == constants.AlgorithmCustom {
+		input = customAlias
+	}
+
+	shortCode, err := shortener.Generate(input)
+	if err != nil {
+		return nil, err
+	}
+
+	exists, err := s.urlRepository.ShortCodeExists(shortCode)
+	if err != nil {
+		return nil, err
+	}
+
+	if exists {
+		return nil, ErrShortCodeAlreadyExists
+	}
+
+	url := &models.URL{
+		UserID:      userID,
+		OriginalURL: originalURL,
+		ShortCode:   shortCode,
+		Algorithm:   algorithm,
+		ExpiresAt:   expiresAt,
+	}
+
+	err = s.urlRepository.Create(url)
+	if err != nil {
+		return nil, err
+	}
+
+	return url, nil
 }
