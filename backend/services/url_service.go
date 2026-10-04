@@ -40,6 +40,10 @@ func (s *URLService) CreateShortURL(
 		return nil, err
 	}
 
+	if err := validateOriginalURL(originalURL); err != nil {
+		return nil, err
+	}
+
 	if algorithm == constants.AlgorithmCustom {
 		if customAlias == "" {
 			return nil, ErrCustomAliasRequired

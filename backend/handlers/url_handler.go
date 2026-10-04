@@ -193,9 +193,23 @@ func (h *URLHandler) Redirect(c *gin.Context) {
 		return
 	}
 
+	if url == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "short URL not found",
+		})
+		return
+	}
+
 	if h.urlService.IsExpired(url) {
 		c.JSON(http.StatusGone, gin.H{
 			"error": "short URL has expired",
+		})
+		return
+	}
+
+	if err := services.ValidateOriginalURL(url.OriginalURL); err != nil {
+		c.JSON(http.StatusGone, gin.H{
+			"error": "short URL is invalid and cannot be redirected",
 		})
 		return
 	}
