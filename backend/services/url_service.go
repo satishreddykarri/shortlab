@@ -59,6 +59,14 @@ func (s *URLService) CreateShortURL(
 		)
 	}
 
+	if algorithm == constants.AlgorithmRandom {
+		return s.createRandomURL(
+			userID,
+			originalURL,
+			expiresAt,
+		)
+	}
+
 	return s.createNonBase62URL(
 		userID,
 		originalURL,
@@ -195,4 +203,47 @@ func (s *URLService) createNonBase62URL(
 	}
 
 	return url, nil
+}
+
+func (s *URLService) createRandomURL(
+	userID uuid.UUID,
+	originalURL string,
+	expiresAt *time.Time,
+) (*models.URL, error) {
+
+	shortener := algorithms.RandomShortener{}
+
+	const maxAttempts = 5
+
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		shortCode, err := shortener.Generate("")
+		if err != nil {
+			return nil, err
+		}
+
+		exists, err := s.urlRepository.ShortCodeExists(shortCode)
+		if err != nil {
+			return nil, err
+		}
+
+		if exists {
+			continue
+		}
+
+		url := &models.URL{
+			UserID:      userID,
+			OriginalURL: originalURL,
+			ShortCode:   shortCode,
+			Algorithm:   constants.AlgorithmRandom,
+			ExpiresAt:   expiresAt,
+		}
+
+		if err := s.urlRepository.Create(url); err != nil {
+			return nil, err
+		}
+
+		return url, nil
+	}
+
+	return nil, ErrShortCodeAlreadyExists
 }

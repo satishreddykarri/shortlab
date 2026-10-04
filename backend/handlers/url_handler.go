@@ -71,6 +71,13 @@ func (h *URLHandler) Create(c *gin.Context) {
 	)
 
 	if err != nil {
+		if errors.Is(err, services.ErrShortCodeAlreadyExists) {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
