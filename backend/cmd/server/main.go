@@ -40,11 +40,15 @@ func main() {
 	clickService := services.NewURLClickService(
 		clickRepository,
 	)
+	analyticsService := services.NewURLAnalyticsService(
+		repositories.NewURLRepository(database.DB),
+		clickRepository,
+	)
 	emailService := services.NewEmailService()
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepository, emailService, jwtService)
 
-	router := routes.SetupRouter(authService, urlService, clickService, jwtService)
+	router := routes.SetupRouter(authService, urlService, clickService, analyticsService, jwtService)
 
 	log.Println("ShortLab backend starting on :8080")
 

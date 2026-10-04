@@ -14,4 +14,7 @@ const (
 
 	UserColumnID    = "id"
 	UserColumnEmail = "email"
+
+	URLClickColumnURLID     = "url_id"
+	URLClickColumnClickedAt = "clicked_at"
 )

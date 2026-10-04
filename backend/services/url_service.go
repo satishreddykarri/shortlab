@@ -29,7 +29,12 @@ func (s *URLService) CreateShortURL(
 	originalURL string,
 	algorithm string,
 	customAlias string,
+	expiresAt *time.Time,
 ) (*models.URL, error) {
+
+	if err := validateExpiration(expiresAt); err != nil {
+		return nil, err
+	}
 
 	if err := validateAlgorithm(algorithm); err != nil {
 		return nil, err
@@ -54,6 +59,7 @@ func (s *URLService) CreateShortURL(
 		UserID:      userID,
 		OriginalURL: originalURL,
 		Algorithm:   algorithm,
+		ExpiresAt:   expiresAt,
 	}
 
 	// Create the record first so PostgreSQL generates the numeric ID.
@@ -84,6 +90,13 @@ func (s *URLService) GetUserURLs(
 	userID uuid.UUID,
 ) ([]models.URL, error) {
 	return s.urlRepository.GetByUserID(userID)
+}
+
+func (s *URLService) GetUserURL(
+	userID uuid.UUID,
+	id uint64,
+) (*models.URL, error) {
+	return s.urlRepository.GetByIDAndUserID(id, userID)
 }
 
 func (s *URLService) DeleteURL(

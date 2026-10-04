@@ -83,3 +83,23 @@ func (r *URLRepository) DeleteByIDAndUserID(
 
 	return nil
 }
+func (r *URLRepository) GetByIDAndUserID(
+	id uint64,
+	userID uuid.UUID,
+) (*models.URL, error) {
+	var url models.URL
+
+	err := r.db.
+		Where(
+			constants.URLColumnID+" = ? AND "+constants.URLColumnUserID+" = ?",
+			id,
+			userID,
+		).
+		First(&url).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &url, nil
+}

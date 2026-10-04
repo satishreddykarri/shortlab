@@ -7,7 +7,7 @@ import (
 	"github.com/satishreddykarri/shortlab/services"
 )
 
-func SetupRouter(authService *services.AuthService, urlService *services.URLService, clickService *services.URLClickService, jwtService *services.JWTService) *gin.Engine {
+func SetupRouter(authService *services.AuthService, urlService *services.URLService, clickService *services.URLClickService, analyticsService *services.URLAnalyticsService, jwtService *services.JWTService) *gin.Engine {
 	router := gin.Default()
 
 	authHandler := handlers.NewAuthHandler(authService)
@@ -20,7 +20,7 @@ func SetupRouter(authService *services.AuthService, urlService *services.URLServ
 		authRoutes.POST("/login", authHandler.Login)
 	}
 
-	urlHandler := handlers.NewURLHandler(urlService, clickService)
+	urlHandler := handlers.NewURLHandler(urlService, clickService, analyticsService)
 
 	urlRoutes := router.Group("/api/urls")
 	urlRoutes.Use(middleware.AuthRequired(jwtService))
@@ -28,6 +28,8 @@ func SetupRouter(authService *services.AuthService, urlService *services.URLServ
 		urlRoutes.POST("", urlHandler.Create)
 		urlRoutes.GET("", urlHandler.List)
 		urlRoutes.DELETE("/:id", urlHandler.Delete)
+		urlRoutes.GET("/:id/analytics", urlHandler.Analytics)
+		urlRoutes.GET("/:id", urlHandler.GetByID)
 	}
 	router.GET("/:shortCode", urlHandler.Redirect)
 

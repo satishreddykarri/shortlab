@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"regexp"
+	"time"
 
 	"github.com/satishreddykarri/shortlab/constants"
 )
@@ -44,4 +45,18 @@ func validateAlgorithm(algorithm string) error {
 	default:
 		return ErrInvalidAlgorithm
 	}
+}
+
+var ErrExpirationInPast = errors.New("expiration time must be in the future")
+
+func validateExpiration(expiresAt *time.Time) error {
+	if expiresAt == nil {
+		return nil
+	}
+
+	if !expiresAt.After(time.Now()) {
+		return ErrExpirationInPast
+	}
+
+	return nil
 }
