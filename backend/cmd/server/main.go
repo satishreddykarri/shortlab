@@ -5,17 +5,25 @@ import (
 
 	"github.com/joho/godotenv"
 
+	_ "github.com/satishreddykarri/shortlab/docs"
+
 	"github.com/satishreddykarri/shortlab/database"
 	"github.com/satishreddykarri/shortlab/models"
 	"github.com/satishreddykarri/shortlab/repositories"
 	"github.com/satishreddykarri/shortlab/routes"
 	"github.com/satishreddykarri/shortlab/services"
 )
+
 // @title ShortLab API
 // @version 1.0
 // @description Configurable URL shortening platform with multiple shortening strategies and analytics.
 // @host localhost:8080
 // @BasePath /
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your JWT token with the Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIs...
 func main() {
 	err := godotenv.Load()
 

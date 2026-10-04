@@ -24,6 +24,17 @@ type RegisterRequest struct {
 	ConfirmPassword string `json:"confirm_password" binding:"required"`
 }
 
+// Register godoc
+// @Summary Register a new user
+// @Description Creates a new user account and sends an email verification code.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Registration details"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Router /api/auth/register [post]
 // Registers a new user and creates a verification code for email confirmation.
 func (h *AuthHandler) Register(c *gin.Context) {
 	var request RegisterRequest
@@ -60,6 +71,17 @@ type VerifyEmailRequest struct {
 	Code  string `json:"code" binding:"required,len=6"`
 }
 
+// VerifyEmail godoc
+// @Summary Verify email address
+// @Description Verifies a user's email using the verification code sent during registration.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body VerifyEmailRequest true "Verification details"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/auth/verify-email [post]
 // Verifies the email address associated with a registration.
 func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 	var request VerifyEmailRequest
@@ -93,6 +115,17 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Login godoc
+// @Summary Login
+// @Description Authenticates a verified user and returns a JWT token.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/auth/login [post]
 // Authenticates a verified user and returns a JWT.
 func (h *AuthHandler) Login(c *gin.Context) {
 	var request LoginRequest

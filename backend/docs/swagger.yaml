@@ -1,4 +1,105 @@
 basePath: /
+definitions:
+  handlers.CreateURLRequest:
+    properties:
+      algorithm:
+        type: string
+      custom_alias:
+        type: string
+      expires_at:
+        type: string
+      original_url:
+        type: string
+    required:
+    - algorithm
+    - original_url
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - email
+    - name
+    - password
+    type: object
+  handlers.URLResponse:
+    properties:
+      algorithm:
+        type: string
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: integer
+      original_url:
+        type: string
+      short_code:
+        type: string
+    type: object
+  handlers.VerifyEmailRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  services.ClickResponse:
+    properties:
+      clicked_at:
+        type: string
+      id:
+        type: integer
+      ip_address:
+        type: string
+      referrer:
+        type: string
+      user_agent:
+        type: string
+    type: object
+  services.URLAnalytics:
+    properties:
+      algorithm:
+        type: string
+      clicks:
+        items:
+          $ref: '#/definitions/services.ClickResponse'
+        type: array
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      original_url:
+        type: string
+      short_code:
+        type: string
+      total_clicks:
+        type: integer
+      url_id:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -6,5 +107,285 @@ info:
     and analytics.
   title: ShortLab API
   version: "1.0"
-paths: {}
+paths:
+  /{shortCode}:
+    get:
+      description: Redirects the visitor to the original URL and records click information.
+      parameters:
+      - description: Short URL code
+        in: path
+        name: shortCode
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Found
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "410":
+          description: Gone
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Redirect to original URL
+      tags:
+      - Redirect
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a verified user and returns a JWT token.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - Authentication
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and sends an email verification code.
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /api/auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a user's email using the verification code sent during
+        registration.
+      parameters:
+      - description: Verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify email address
+      tags:
+      - Authentication
+  /api/urls:
+    get:
+      description: Returns all URLs created by the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.URLResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List user's URLs
+      tags:
+      - URLs
+    post:
+      consumes:
+      - application/json
+      description: Creates a shortened URL using the selected shortening algorithm.
+      parameters:
+      - description: URL creation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateURLRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a short URL
+      tags:
+      - URLs
+  /api/urls/{id}:
+    delete:
+      description: Deletes a shortened URL belonging to the authenticated user.
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a URL
+      tags:
+      - URLs
+    get:
+      description: Returns a shortened URL belonging to the authenticated user.
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.URLResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a URL
+      tags:
+      - URLs
+  /api/urls/{id}/analytics:
+    get:
+      description: Returns click statistics and detailed click information for a shortened
+        URL.
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/services.URLAnalytics'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get URL analytics
+      tags:
+      - Analytics
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter your JWT token with the Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIs...'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

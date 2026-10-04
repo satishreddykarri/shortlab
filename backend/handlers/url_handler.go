@@ -34,6 +34,19 @@ type CreateURLRequest struct {
 	ExpiresAt   *time.Time `json:"expires_at"`
 }
 
+// Create godoc
+// @Summary Create a short URL
+// @Description Creates a shortened URL using the selected shortening algorithm.
+// @Tags URLs
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body CreateURLRequest true "URL creation details"
+// @Success 201 {object} URLResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Router /api/urls [post]
 func (h *URLHandler) Create(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 
@@ -90,6 +103,15 @@ func (h *URLHandler) Create(c *gin.Context) {
 	})
 }
 
+// List godoc
+// @Summary List user's URLs
+// @Description Returns all URLs created by the authenticated user.
+// @Tags URLs
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} URLResponse
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/urls [get]
 func (h *URLHandler) List(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 
@@ -132,6 +154,16 @@ func (h *URLHandler) List(c *gin.Context) {
 	})
 }
 
+// Delete godoc
+// @Summary Delete a URL
+// @Description Deletes a shortened URL belonging to the authenticated user.
+// @Tags URLs
+// @Security BearerAuth
+// @Param id path int true "URL ID"
+// @Success 204
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/urls/{id} [delete]
 func (h *URLHandler) Delete(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 
@@ -181,6 +213,15 @@ func (h *URLHandler) Delete(c *gin.Context) {
 	})
 }
 
+// Redirect godoc
+// @Summary Redirect to original URL
+// @Description Redirects the visitor to the original URL and records click information.
+// @Tags Redirect
+// @Param shortCode path string true "Short URL code"
+// @Success 302
+// @Failure 404 {object} map[string]interface{}
+// @Failure 410 {object} map[string]interface{}
+// @Router /{shortCode} [get]
 func (h *URLHandler) Redirect(c *gin.Context) {
 	shortCode := c.Param("shortCode")
 
@@ -238,6 +279,17 @@ func (h *URLHandler) Redirect(c *gin.Context) {
 	c.Redirect(http.StatusFound, url.OriginalURL)
 }
 
+// Analytics godoc
+// @Summary Get URL analytics
+// @Description Returns click statistics and detailed click information for a shortened URL.
+// @Tags Analytics
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} services.URLAnalytics
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/urls/{id}/analytics [get]
 func (h *URLHandler) Analytics(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 
@@ -290,6 +342,17 @@ func (h *URLHandler) Analytics(c *gin.Context) {
 	})
 }
 
+// GetByID godoc
+// @Summary Get a URL
+// @Description Returns a shortened URL belonging to the authenticated user.
+// @Tags URLs
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} URLResponse
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/urls/{id} [get]
 func (h *URLHandler) GetByID(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 
