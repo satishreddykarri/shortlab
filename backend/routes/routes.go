@@ -9,8 +9,10 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRouter(authService *services.AuthService, urlService *services.URLService, clickService *services.URLClickService, analyticsService *services.URLAnalyticsService, jwtService *services.JWTService) *gin.Engine {
+func SetupRouter(authService *services.AuthService, urlService *services.URLService, clickService *services.URLClickService,
+	analyticsService *services.URLAnalyticsService, jwtService *services.JWTService, frontendURL string) *gin.Engine {
 	router := gin.Default()
+	router.Use(middleware.CORS(frontendURL))
 
 	authHandler := handlers.NewAuthHandler(authService)
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 
+	"github.com/satishreddykarri/shortlab/config"
 	_ "github.com/satishreddykarri/shortlab/docs"
 
 	"github.com/satishreddykarri/shortlab/database"
@@ -30,6 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	cfg := config.Load()
 
 	database.Connect()
 
@@ -60,7 +62,7 @@ func main() {
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepository, emailService, jwtService)
 
-	router := routes.SetupRouter(authService, urlService, clickService, analyticsService, jwtService)
+	router := routes.SetupRouter(authService, urlService, clickService, analyticsService, jwtService, cfg.FrontendURL)
 
 	log.Println("ShortLab backend starting on :8080")
 
