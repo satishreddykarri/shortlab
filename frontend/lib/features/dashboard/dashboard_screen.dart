@@ -9,6 +9,7 @@ import '../../core/network/api_client.dart';
 import '../../core/widgets/async_state_view.dart';
 import '../auth/data/auth_api.dart';
 import '../landing/landing_page.dart';
+import 'url_analytics_dialog.dart';
 import '../urls/data/short_url.dart';
 import '../urls/data/url_api.dart';
 
@@ -45,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<ShortUrl>? _urls;
   bool _isLoading = true;
   bool _isCreating = false;
+  final Set<int> _deletingUrlIds = {};
   String? _listError;
   String? _createError;
   ShortUrl? _createdUrl;
@@ -229,6 +231,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } on PlatformException {
       _showCopyError('Could not copy the short URL.');
     }
+  }
+
+  Future<void> _confirmDelete(ShortUrl url) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete short link?'),
+            content: Text(
+              'This will permanently delete ${url.shortCode} and its click analytics.',
+            ),
+            actions: [
+              TextButton(
+                key: const ValueKey('cancel-delete-url'),
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                key: const ValueKey('confirm-delete-url'),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+    );
+    if (confirmed != true || !mounted || _deletingUrlIds.contains(url.id)) {
+      return;
+    }
+
+    setState(() => _deletingUrlIds.add(url.id));
+    try {
+      await _urlApi.delete(url.id);
+      if (!mounted) return;
+      setState(() {
+        _urls = _urls?.where((item) => item.id != url.id).toList();
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Short link deleted.')));
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _deletingUrlIds.remove(url.id));
+      }
+    }
+  }
+
+  Future<void> _openAnalytics(ShortUrl url) {
+    return showDialog<void>(
+      context: context,
+      builder:
+          (_) => UrlAnalyticsDialog(
+            urlApi: _urlApi,
+            url: url,
+            shortUrl: _shortUrl(url),
+          ),
+    );
   }
 
   void _showCopyError(String message) {
@@ -551,6 +615,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               url: url,
               shortUrl: _shortUrl(url),
               onCopy: () => _copyShortUrl(url),
+              onAnalytics: () => _openAnalytics(url),
+              onDelete: () => _confirmDelete(url),
+              isDeleting: _deletingUrlIds.contains(url.id),
             ),
           ),
       ],
@@ -604,11 +671,17 @@ class _UrlCard extends StatelessWidget {
     required this.url,
     required this.shortUrl,
     required this.onCopy,
+    required this.onAnalytics,
+    required this.onDelete,
+    required this.isDeleting,
   });
 
   final ShortUrl url;
   final String shortUrl;
   final VoidCallback onCopy;
+  final VoidCallback onAnalytics;
+  final VoidCallback onDelete;
+  final bool isDeleting;
 
   @override
   Widget build(BuildContext context) {
@@ -658,11 +731,35 @@ class _UrlCard extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                key: ValueKey('copy-short-url-${url.id}'),
-                onPressed: onCopy,
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: const Text('Copy'),
+              child: Wrap(
+                spacing: 4,
+                children: [
+                  TextButton.icon(
+                    key: ValueKey('analytics-url-${url.id}'),
+                    onPressed: onAnalytics,
+                    icon: const Icon(Icons.analytics_outlined, size: 18),
+                    label: const Text('Analytics'),
+                  ),
+                  TextButton.icon(
+                    key: ValueKey('copy-short-url-${url.id}'),
+                    onPressed: onCopy,
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('Copy'),
+                  ),
+                  IconButton(
+                    key: ValueKey('delete-url-${url.id}'),
+                    tooltip: 'Delete short link',
+                    onPressed: isDeleting ? null : onDelete,
+                    icon:
+                        isDeleting
+                            ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Icon(Icons.delete_outline_rounded),
+                  ),
+                ],
               ),
             ),
           ],

@@ -538,6 +538,207 @@ void main() {
     expect(find.text('Short URL copied to clipboard.'), findsOneWidget);
   });
 
+  testWidgets('deletion requires confirmation and removes the link', (
+    tester,
+  ) async {
+    final url = _urlResponse(shortCode: 'delete-me');
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [url],
+        }),
+        200,
+      ),
+      http.Response('{"message":"URL deleted successfully"}', 200),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('delete-url-1')));
+    await tester.tap(find.byKey(const ValueKey('delete-url-1')));
+    await tester.pumpAndSettle();
+    expect(client.requests, hasLength(2));
+
+    await tester.tap(find.byKey(const ValueKey('confirm-delete-url')));
+    await tester.pumpAndSettle();
+
+    expect(client.requests, hasLength(3));
+    expect(client.requests.last.method, 'DELETE');
+    expect(client.requests.last.url.path, '/api/urls/1');
+    expect(
+      client.requests.last.headers['Authorization']!.startsWith('Bearer '),
+      isTrue,
+    );
+    expect(find.text('Short link deleted.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('short-url-1')), findsNothing);
+  });
+
+  testWidgets('cancelled deletion does not call the delete endpoint', (
+    tester,
+  ) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse()],
+        }),
+        200,
+      ),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('delete-url-1')));
+    await tester.tap(find.byKey(const ValueKey('delete-url-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cancel-delete-url')));
+    await tester.pumpAndSettle();
+
+    expect(client.requests, hasLength(2));
+    expect(find.byKey(const ValueKey('short-url-1')), findsOneWidget);
+  });
+
+  testWidgets('deletion failure keeps the URL visible', (tester) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse()],
+        }),
+        200,
+      ),
+      http.Response('{"error":"failed to delete URL"}', 500),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('delete-url-1')));
+    await tester.tap(find.byKey(const ValueKey('delete-url-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-delete-url')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('failed to delete URL'), findsOneWidget);
+    expect(find.byKey(const ValueKey('short-url-1')), findsOneWidget);
+  });
+
+  testWidgets('analytics displays URL metadata and click details', (
+    tester,
+  ) async {
+    final analytics = _analyticsResponse();
+    final refreshedAnalytics = _analyticsResponse()..['total_clicks'] = 18;
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse()],
+        }),
+        200,
+      ),
+      http.Response(jsonEncode({'analytics': analytics}), 200),
+      http.Response(jsonEncode({'analytics': refreshedAnalytics}), 200),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.tap(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.pumpAndSettle();
+
+    expect(client.requests.last.url.path, '/api/urls/1/analytics');
+    expect(
+      client.requests.last.headers['Authorization']!.startsWith('Bearer '),
+      isTrue,
+    );
+    expect(find.text('Link analytics'), findsOneWidget);
+    expect(find.text('17 total'), findsOneWidget);
+    expect(find.text('IP address: 203.0.113.8'), findsOneWidget);
+    expect(find.text('User agent: ShortLab test browser'), findsOneWidget);
+    expect(find.text('Referrer: https://news.example/'), findsOneWidget);
+    expect(find.text('Short code: abc123'), findsOneWidget);
+
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.pumpAndSettle();
+    expect(find.text('18 total'), findsOneWidget);
+    expect(
+      client.requests.where(
+        (request) => request.url.path == '/api/urls/1/analytics',
+      ),
+      hasLength(2),
+    );
+  });
+
+  testWidgets('analytics with zero clicks has an explicit empty state', (
+    tester,
+  ) async {
+    final analytics =
+        _analyticsResponse()
+          ..['total_clicks'] = 0
+          ..['clicks'] = [];
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse()],
+        }),
+        200,
+      ),
+      http.Response(jsonEncode({'analytics': analytics}), 200),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.tap(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('0 total'), findsOneWidget);
+    expect(find.text('No clicks recorded yet.'), findsOneWidget);
+  });
+
+  testWidgets('analytics request failure shows an error and retry', (
+    tester,
+  ) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse()],
+        }),
+        200,
+      ),
+      http.Response('{"error":"failed to fetch analytics"}', 500),
+      http.Response(jsonEncode({'analytics': _analyticsResponse()}), 200),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.tap(find.byKey(const ValueKey('analytics-url-1')));
+    await tester.pumpAndSettle();
+    expect(find.text('failed to fetch analytics'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('retry-analytics')));
+    await tester.pumpAndSettle();
+    expect(find.text('17 total'), findsOneWidget);
+    expect(client.requests.last.url.path, '/api/urls/1/analytics');
+  });
+
   test('authenticated API requests add the Bearer token', () async {
     final session = AuthSession()..login('session.jwt.token');
     final client = _RecordingClient([http.Response('{"ok":true}', 200)]);
@@ -672,6 +873,27 @@ Map<String, Object?> _urlResponse({
     'algorithm': algorithm,
     'expires_at': null,
     'created_at': '2026-10-11T12:00:00Z',
+  };
+}
+
+Map<String, Object?> _analyticsResponse() {
+  return {
+    'url_id': 1,
+    'original_url': 'https://example.com/article',
+    'short_code': 'abc123',
+    'algorithm': 'base62',
+    'created_at': '2026-10-11T12:00:00Z',
+    'expires_at': null,
+    'total_clicks': 17,
+    'clicks': [
+      {
+        'id': 91,
+        'clicked_at': '2026-10-11T12:30:00Z',
+        'ip_address': '203.0.113.8',
+        'user_agent': 'ShortLab test browser',
+        'referrer': 'https://news.example/',
+      },
+    ],
   };
 }
 

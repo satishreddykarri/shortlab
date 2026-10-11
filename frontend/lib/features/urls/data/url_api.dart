@@ -1,5 +1,6 @@
 import '../../../core/network/api_client.dart';
 import 'short_url.dart';
+import 'url_analytics.dart';
 
 class UrlApi {
   UrlApi(this._client);
@@ -52,5 +53,26 @@ class UrlApi {
           return ShortUrl.fromJson(item);
         })
         .toList(growable: false);
+  }
+
+  Future<void> delete(int id) async {
+    await _client.deleteJson(
+      '/api/urls/$id',
+      expectedStatus: 200,
+      authenticated: true,
+    );
+  }
+
+  Future<UrlAnalytics> analytics(int id) async {
+    final response = await _client.getJson(
+      '/api/urls/$id/analytics',
+      expectedStatus: 200,
+      authenticated: true,
+    );
+    final analytics = response['analytics'];
+    if (analytics is! Map<String, dynamic>) {
+      throw const ApiException('The server returned invalid URL analytics.');
+    }
+    return UrlAnalytics.fromJson(analytics);
   }
 }
