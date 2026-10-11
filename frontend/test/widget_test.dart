@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:shortlab/app.dart';
 import 'package:shortlab/core/auth/auth_session.dart';
+import 'package:shortlab/core/config/api_config.dart';
 import 'package:shortlab/core/network/api_client.dart';
 import 'package:shortlab/core/widgets/async_state_view.dart';
 import 'package:shortlab/features/auth/data/auth_api.dart';
+import 'package:shortlab/features/urls/data/url_api.dart';
 
 void main() {
   testWidgets('landing page presents ShortLab and account actions', (
@@ -191,6 +194,7 @@ void main() {
     final session = AuthSession();
     final client = _RecordingClient([
       http.Response('{"token":"signed.jwt.token"}', 200),
+      http.Response('{"urls":[]}', 200),
     ]);
     final api = _createAuthApi(client, session: session);
     addTearDown(api.close);
@@ -211,15 +215,16 @@ void main() {
 
     expect(session.isAuthenticated, isTrue);
     expect(session.token, 'signed.jwt.token');
-    expect(find.text('You are logged in'), findsOneWidget);
-    expect(client.requests.single.url.path, '/api/auth/login');
-    expect(client.requests.single.headers, isNot(contains('Authorization')));
-    expect(jsonDecode(client.requests.single.body), {
+    expect(find.text('Dashboard'), findsOneWidget);
+    expect(client.requests[0].url.path, '/api/auth/login');
+    expect(client.requests[0].headers, isNot(contains('Authorization')));
+    expect(jsonDecode(client.requests[0].body), {
       'email': 'ari@example.com',
       'password': 'Password@123',
     });
+    expect(client.requests[1].url.path, '/api/urls');
 
-    await tester.tap(find.byKey(const ValueKey('logout')));
+    await tester.tap(find.byKey(const ValueKey('dashboard-logout')));
     await tester.pumpAndSettle();
 
     expect(session.isAuthenticated, isFalse);
@@ -334,8 +339,203 @@ void main() {
     );
 
     expect(find.text('Could not load links.'), findsOneWidget);
+    await tester.ensureVisible(find.text('Try again'));
     await tester.tap(find.text('Try again'));
     expect(retryCount, 1);
+  });
+
+  testWidgets('dashboard creates a URL with selected algorithm and refreshes', (
+    tester,
+  ) async {
+    final createdUrl = _urlResponse(shortCode: 'r4nd0m', algorithm: 'random');
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response('{"urls":[]}', 200),
+      http.Response(
+        jsonEncode({
+          'message': 'short URL created successfully',
+          'url': createdUrl,
+        }),
+        201,
+      ),
+      http.Response(
+        jsonEncode({
+          'urls': [createdUrl],
+        }),
+        200,
+      ),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    expect(
+      find.text('No shortened links yet. Create your first one above.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('algorithm-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Random').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('original-url')),
+      'https://example.com/article',
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('create-url-submit')));
+    await tester.tap(find.byKey(const ValueKey('create-url-submit')));
+    await tester.pumpAndSettle();
+
+    expect(client.requests, hasLength(4));
+    final createRequest = client.requests[2];
+    expect(createRequest.method, 'POST');
+    expect(createRequest.url.path, '/api/urls');
+    expect(createRequest.headers['Authorization'], 'Bearer jwt.token');
+    expect(jsonDecode(createRequest.body), {
+      'original_url': 'https://example.com/article',
+      'algorithm': 'random',
+    });
+    expect(find.text('Short link created'), findsOneWidget);
+    expect(find.byKey(const ValueKey('created-short-url')), findsOneWidget);
+    expect(
+      tester
+          .widget<SelectableText>(
+            find.byKey(const ValueKey('created-short-url')),
+          )
+          .data,
+      '${ApiConfig.baseUrl}/r4nd0m',
+    );
+    expect(find.text('Method: Random'), findsOneWidget);
+    expect(client.requests[3].url.path, '/api/urls');
+  });
+
+  testWidgets('custom alias is conditional and validated before request', (
+    tester,
+  ) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response('{"urls":[]}', 200),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    expect(find.byKey(const ValueKey('custom-alias')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('algorithm-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Custom alias').last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('custom-alias')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('original-url')),
+      'https://example.com',
+    );
+    await tester.enterText(find.byKey(const ValueKey('custom-alias')), 'x!');
+    await tester.ensureVisible(find.byKey(const ValueKey('create-url-submit')));
+    await tester.tap(find.byKey(const ValueKey('create-url-submit')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Custom alias must be at least 3 characters.'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byKey(const ValueKey('custom-alias')), 'ab!');
+    await tester.ensureVisible(find.byKey(const ValueKey('create-url-submit')));
+    await tester.tap(find.byKey(const ValueKey('create-url-submit')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Use only letters, numbers, hyphens, and underscores.'),
+      findsOneWidget,
+    );
+    expect(client.requests, hasLength(2));
+  });
+
+  testWidgets('dashboard reports create and list errors without fake success', (
+    tester,
+  ) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response('{"urls":[]}', 200),
+      http.Response('{"error":"short code already exists"}', 409),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('original-url')),
+      'https://example.com',
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('create-url-submit')));
+    await tester.tap(find.byKey(const ValueKey('create-url-submit')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('short code already exists'), findsOneWidget);
+    expect(find.byKey(const ValueKey('created-url-result')), findsNothing);
+
+    final listClient = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response('{"error":"service unavailable"}', 500),
+      http.Response('{"urls":[]}', 200),
+    ]);
+    final listApi = _createAuthApi(listClient);
+    addTearDown(listApi.close);
+    await tester.pumpWidget(
+      ShortLabApp(key: const ValueKey('list-error-app'), authApi: listApi),
+    );
+    await _login(tester);
+
+    expect(find.text('service unavailable'), findsOneWidget);
+    await tester.ensureVisible(find.text('Try again'));
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('No shortened links yet. Create your first one above.'),
+      findsOneWidget,
+    );
+    expect(listClient.requests[2].url.path, '/api/urls');
+  });
+
+  testWidgets('copy action puts configured short URL on clipboard', (
+    tester,
+  ) async {
+    final client = _RecordingClient([
+      http.Response('{"token":"jwt.token"}', 200),
+      http.Response(
+        jsonEncode({
+          'urls': [_urlResponse(shortCode: 'abc123')],
+        }),
+        200,
+      ),
+    ]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    String? copiedText;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copiedText = (call.arguments as Map)['text'] as String?;
+          }
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await _login(tester);
+    await tester.ensureVisible(find.byKey(const ValueKey('copy-short-url-1')));
+    await tester.tap(find.byKey(const ValueKey('copy-short-url-1')));
+    await tester.pumpAndSettle();
+
+    expect(copiedText, '${ApiConfig.baseUrl}/abc123');
+    expect(find.text('Short URL copied to clipboard.'), findsOneWidget);
   });
 
   test('authenticated API requests add the Bearer token', () async {
@@ -358,6 +558,39 @@ void main() {
       client.requests.single.headers['Authorization'],
       'Bearer session.jwt.token',
     );
+  });
+
+  test('custom URL request includes alias and UTC expiration fields', () async {
+    final session = AuthSession()..login('jwt.token');
+    final responseUrl = _urlResponse(shortCode: 'my-link', algorithm: 'custom')
+      ..['expires_at'] = '2030-01-02T03:04:00Z';
+    final client = _RecordingClient([
+      http.Response(
+        jsonEncode({'message': 'created', 'url': responseUrl}),
+        201,
+      ),
+    ]);
+    final apiClient = ApiClient(
+      client: client,
+      baseUrl: 'http://localhost:8080',
+      session: session,
+    );
+    addTearDown(apiClient.close);
+    final urlApi = UrlApi(apiClient);
+
+    await urlApi.create(
+      originalUrl: 'https://example.com',
+      algorithm: 'custom',
+      customAlias: 'my-link',
+      expiresAt: DateTime.utc(2030, 1, 2, 3, 4),
+    );
+
+    expect(jsonDecode(client.requests.single.body), {
+      'original_url': 'https://example.com',
+      'algorithm': 'custom',
+      'custom_alias': 'my-link',
+      'expires_at': '2030-01-02T03:04:00.000Z',
+    });
   });
 
   test('unauthorized authenticated response clears session safely', () async {
@@ -413,6 +646,35 @@ void main() {
   });
 }
 
+Future<void> _login(WidgetTester tester) async {
+  await tester.tap(find.text('Log in'));
+  await tester.pumpAndSettle();
+  await tester.enterText(
+    find.byKey(const ValueKey('login-email')),
+    'ari@example.com',
+  );
+  await tester.enterText(
+    find.byKey(const ValueKey('login-password')),
+    'Password@123',
+  );
+  await tester.tap(find.byKey(const ValueKey('login-submit')));
+  await tester.pumpAndSettle();
+}
+
+Map<String, Object?> _urlResponse({
+  String shortCode = 'abc123',
+  String algorithm = 'base62',
+}) {
+  return {
+    'id': 1,
+    'original_url': 'https://example.com/article',
+    'short_code': shortCode,
+    'algorithm': algorithm,
+    'expires_at': null,
+    'created_at': '2026-10-11T12:00:00Z',
+  };
+}
+
 AuthApi _createAuthApi(_RecordingClient client, {AuthSession? session}) {
   final activeSession = session ?? AuthSession();
   return AuthApi(
@@ -426,8 +688,9 @@ AuthApi _createAuthApi(_RecordingClient client, {AuthSession? session}) {
 }
 
 class _RecordedRequest {
-  const _RecordedRequest(this.url, this.body, this.headers);
+  const _RecordedRequest(this.method, this.url, this.body, this.headers);
 
+  final String method;
   final Uri url;
   final String body;
   final Map<String, String> headers;
@@ -443,7 +706,12 @@ class _RecordingClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     final body = await request.finalize().bytesToString();
     requests.add(
-      _RecordedRequest(request.url, body, Map.unmodifiable(request.headers)),
+      _RecordedRequest(
+        request.method,
+        request.url,
+        body,
+        Map.unmodifiable(request.headers),
+      ),
     );
     final response = _responses.removeAt(0);
     return http.StreamedResponse(

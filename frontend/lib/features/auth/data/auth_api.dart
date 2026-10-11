@@ -1,5 +1,6 @@
 import '../../../core/network/api_client.dart';
 import '../../../core/auth/auth_session.dart';
+import '../../urls/data/url_api.dart';
 
 class AuthApi {
   AuthApi({ApiClient? client, AuthSession? session}) {
@@ -12,6 +13,7 @@ class AuthApi {
   late final AuthSession _session;
 
   AuthSession get session => _session;
+  UrlApi get urls => UrlApi(_client);
 
   Future<void> register({
     required String name,

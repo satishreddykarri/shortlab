@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
-import 'authenticated_placeholder.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'data/auth_api.dart';
 import 'registration_screen.dart';
 
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder:
-              (_) => AuthenticatedPlaceholder(
+              (_) => DashboardScreen(
                 authApi: widget.authApi,
                 authSession: widget.authApi.session,
                 email: email,
