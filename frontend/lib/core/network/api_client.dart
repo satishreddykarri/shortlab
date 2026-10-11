@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../auth/auth_session.dart';
 import '../config/api_config.dart';
 
 class ApiException implements Exception {
@@ -15,17 +16,61 @@ class ApiException implements Exception {
 }
 
 class ApiClient {
-  ApiClient({http.Client? client, String? baseUrl})
+  ApiClient({http.Client? client, String? baseUrl, this.session})
     : _client = client ?? http.Client(),
       _baseUrl = baseUrl;
 
   final http.Client _client;
   final String? _baseUrl;
+  AuthSession? session;
 
   Future<Map<String, dynamic>> postJson(
     String path,
     Map<String, Object?> body, {
     required int expectedStatus,
+    bool authenticated = false,
+  }) async {
+    return _requestJson(
+      'POST',
+      path,
+      body: body,
+      expectedStatus: expectedStatus,
+      authenticated: authenticated,
+    );
+  }
+
+  Future<Map<String, dynamic>> getJson(
+    String path, {
+    required int expectedStatus,
+    bool authenticated = false,
+  }) {
+    return _requestJson(
+      'GET',
+      path,
+      expectedStatus: expectedStatus,
+      authenticated: authenticated,
+    );
+  }
+
+  Future<Map<String, dynamic>> deleteJson(
+    String path, {
+    required int expectedStatus,
+    bool authenticated = false,
+  }) {
+    return _requestJson(
+      'DELETE',
+      path,
+      expectedStatus: expectedStatus,
+      authenticated: authenticated,
+    );
+  }
+
+  Future<Map<String, dynamic>> _requestJson(
+    String method,
+    String path, {
+    Map<String, Object?>? body,
+    required int expectedStatus,
+    required bool authenticated,
   }) async {
     final Uri uri;
     try {
@@ -42,19 +87,38 @@ class ApiClient {
 
     final http.Response response;
     try {
-      response = await _client
-          .post(
-            uri,
-            headers: const {'Content-Type': 'application/json'},
-            body: jsonEncode(body),
-          )
+      final headers = <String, String>{};
+      if (body != null) {
+        headers['Content-Type'] = 'application/json';
+      }
+      if (authenticated) {
+        final token = session?.token;
+        if (token == null) {
+          throw const ApiException('Please log in to continue.');
+        }
+        headers['Authorization'] = 'Bearer $token';
+      }
+
+      final request = http.Request(method, uri)..headers.addAll(headers);
+      if (body != null) {
+        request.body = jsonEncode(body);
+      }
+      final streamed = await _client
+          .send(request)
           .timeout(const Duration(seconds: 20));
+      response = await http.Response.fromStream(streamed);
     } on TimeoutException {
       throw const ApiException('The request timed out. Please try again.');
     } on http.ClientException {
       throw const ApiException(
         'Could not reach the server. Check your connection and try again.',
       );
+    } on ApiException {
+      rethrow;
+    }
+
+    if (response.statusCode == 401 && authenticated) {
+      session?.logout();
     }
 
     final Map<String, dynamic> decoded;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:shortlab/app.dart';
+import 'package:shortlab/core/auth/auth_session.dart';
 import 'package:shortlab/core/network/api_client.dart';
 import 'package:shortlab/core/widgets/async_state_view.dart';
 import 'package:shortlab/features/auth/data/auth_api.dart';
@@ -65,6 +66,7 @@ void main() {
       'password': 'Password@123',
       'confirm_password': 'Password@123',
     });
+    expect(client.requests[0].headers, isNot(contains('Authorization')));
 
     await tester.enterText(
       find.byKey(const ValueKey('verification-code')),
@@ -80,10 +82,11 @@ void main() {
       'email': 'ari@example.com',
       'code': '123456',
     });
+    expect(client.requests[1].headers, isNot(contains('Authorization')));
 
     await tester.tap(find.byKey(const ValueKey('go-to-login')));
     await tester.pumpAndSettle();
-    expect(find.text('Login is coming soon.'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
   });
 
   testWidgets('registration validation prevents invalid API requests', (
@@ -182,6 +185,124 @@ void main() {
     expect(find.text('Check your inbox'), findsNothing);
   });
 
+  testWidgets('login stores a non-empty token and logout clears the session', (
+    tester,
+  ) async {
+    final session = AuthSession();
+    final client = _RecordingClient([
+      http.Response('{"token":"signed.jwt.token"}', 200),
+    ]);
+    final api = _createAuthApi(client, session: session);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('login-email')),
+      'ari@example.com',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('login-password')),
+      'Password@123',
+    );
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
+    expect(session.isAuthenticated, isTrue);
+    expect(session.token, 'signed.jwt.token');
+    expect(find.text('You are logged in'), findsOneWidget);
+    expect(client.requests.single.url.path, '/api/auth/login');
+    expect(client.requests.single.headers, isNot(contains('Authorization')));
+    expect(jsonDecode(client.requests.single.body), {
+      'email': 'ari@example.com',
+      'password': 'Password@123',
+    });
+
+    await tester.tap(find.byKey(const ValueKey('logout')));
+    await tester.pumpAndSettle();
+
+    expect(session.isAuthenticated, isFalse);
+    expect(session.token, isNull);
+    expect(find.text('Make every link work smarter.'), findsOneWidget);
+  });
+
+  testWidgets('login rejects empty fields without calling the API', (
+    tester,
+  ) async {
+    final client = _RecordingClient([]);
+    final api = _createAuthApi(client);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('login-submit')));
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter your email address.'), findsOneWidget);
+    expect(find.text('Enter your password.'), findsOneWidget);
+    expect(client.requests, isEmpty);
+  });
+
+  testWidgets('login displays backend authentication errors', (tester) async {
+    final client = _RecordingClient([
+      http.Response('{"error":"email is not verified"}', 401),
+    ]);
+    final session = AuthSession();
+    final api = _createAuthApi(client, session: session);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('login-email')),
+      'ari@example.com',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('login-password')),
+      'Password@123',
+    );
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('email is not verified'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(session.isAuthenticated, isFalse);
+  });
+
+  testWidgets('login rejects a successful response without a token', (
+    tester,
+  ) async {
+    final client = _RecordingClient([http.Response('{"message":"ok"}', 200)]);
+    final session = AuthSession();
+    final api = _createAuthApi(client, session: session);
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('login-email')),
+      'ari@example.com',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('login-password')),
+      'Password@123',
+    );
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('The server did not return a valid login token.'),
+      findsOneWidget,
+    );
+    expect(session.isAuthenticated, isFalse);
+    expect(find.text('Welcome back'), findsOneWidget);
+  });
+
   testWidgets('landing page fits a narrow browser width', (tester) async {
     final api = _createAuthApi(_RecordingClient([]));
     addTearDown(api.close);
@@ -216,19 +337,100 @@ void main() {
     await tester.tap(find.text('Try again'));
     expect(retryCount, 1);
   });
+
+  test('authenticated API requests add the Bearer token', () async {
+    final session = AuthSession()..login('session.jwt.token');
+    final client = _RecordingClient([http.Response('{"ok":true}', 200)]);
+    final apiClient = ApiClient(
+      client: client,
+      baseUrl: 'http://localhost:8080',
+      session: session,
+    );
+    addTearDown(apiClient.close);
+
+    await apiClient.getJson(
+      '/api/private',
+      expectedStatus: 200,
+      authenticated: true,
+    );
+
+    expect(
+      client.requests.single.headers['Authorization'],
+      'Bearer session.jwt.token',
+    );
+  });
+
+  test('unauthorized authenticated response clears session safely', () async {
+    final session = AuthSession()..login('session.jwt.token');
+    final client = _RecordingClient([
+      http.Response('{"error":"invalid or expired token"}', 401),
+    ]);
+    final apiClient = ApiClient(
+      client: client,
+      baseUrl: 'http://localhost:8080',
+      session: session,
+    );
+    addTearDown(apiClient.close);
+
+    await expectLater(
+      apiClient.getJson(
+        '/api/private',
+        expectedStatus: 200,
+        authenticated: true,
+      ),
+      throwsA(
+        isA<ApiException>().having(
+          (error) => error.message,
+          'message',
+          'invalid or expired token',
+        ),
+      ),
+    );
+
+    expect(session.isAuthenticated, isFalse);
+    expect(session.token, isNull);
+  });
+
+  test('malformed unauthorized response still clears session safely', () async {
+    final session = AuthSession()..login('session.jwt.token');
+    final client = _RecordingClient([http.Response('not json', 401)]);
+    final apiClient = ApiClient(
+      client: client,
+      baseUrl: 'http://localhost:8080',
+      session: session,
+    );
+    addTearDown(apiClient.close);
+
+    await expectLater(
+      apiClient.getJson(
+        '/api/private',
+        expectedStatus: 200,
+        authenticated: true,
+      ),
+      throwsA(isA<ApiException>()),
+    );
+    expect(session.isAuthenticated, isFalse);
+  });
 }
 
-AuthApi _createAuthApi(_RecordingClient client) {
+AuthApi _createAuthApi(_RecordingClient client, {AuthSession? session}) {
+  final activeSession = session ?? AuthSession();
   return AuthApi(
-    client: ApiClient(client: client, baseUrl: 'http://localhost:8080'),
+    client: ApiClient(
+      client: client,
+      baseUrl: 'http://localhost:8080',
+      session: activeSession,
+    ),
+    session: activeSession,
   );
 }
 
 class _RecordedRequest {
-  const _RecordedRequest(this.url, this.body);
+  const _RecordedRequest(this.url, this.body, this.headers);
 
   final Uri url;
   final String body;
+  final Map<String, String> headers;
 }
 
 class _RecordingClient extends http.BaseClient {
@@ -240,7 +442,9 @@ class _RecordingClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     final body = await request.finalize().bytesToString();
-    requests.add(_RecordedRequest(request.url, body));
+    requests.add(
+      _RecordedRequest(request.url, body, Map.unmodifiable(request.headers)),
+    );
     final response = _responses.removeAt(0);
     return http.StreamedResponse(
       Stream.value(utf8.encode(response.body)),

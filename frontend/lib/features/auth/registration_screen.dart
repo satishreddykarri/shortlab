@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
 import 'data/auth_api.dart';
-import 'login_placeholder.dart';
+import 'login_screen.dart';
 import 'verification_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -146,7 +146,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     : () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => const LoginPlaceholder(),
+                          builder: (_) => LoginScreen(authApi: widget.authApi),
                         ),
                       );
                     },

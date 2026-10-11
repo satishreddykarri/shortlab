@@ -22,6 +22,8 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
 
 Registration and email verification use the Go backend routes
 `POST /api/auth/register` and `POST /api/auth/verify-email`.
+Login uses `POST /api/auth/login`. The JWT is held only in memory and is lost
+when the browser page reloads; it is not written to browser storage.
 
 For a release build, set `API_BASE_URL` to the deployed backend URL:
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../auth/data/auth_api.dart';
-import '../auth/login_placeholder.dart';
+import '../auth/login_screen.dart';
 import '../auth/registration_screen.dart';
 
 class LandingPage extends StatelessWidget {
@@ -18,9 +18,9 @@ class LandingPage extends StatelessWidget {
   }
 
   void _openLogin(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const LoginPlaceholder()));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => LoginScreen(authApi: authApi)),
+    );
   }
 
   @override

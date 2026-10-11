@@ -1,9 +1,17 @@
 import '../../../core/network/api_client.dart';
+import '../../../core/auth/auth_session.dart';
 
 class AuthApi {
-  AuthApi({ApiClient? client}) : _client = client ?? ApiClient();
+  AuthApi({ApiClient? client, AuthSession? session}) {
+    _session = session ?? client?.session ?? AuthSession();
+    _client = client ?? ApiClient(session: _session);
+    _client.session = _session;
+  }
 
-  final ApiClient _client;
+  late final ApiClient _client;
+  late final AuthSession _session;
+
+  AuthSession get session => _session;
 
   Future<void> register({
     required String name,
@@ -27,6 +35,20 @@ class AuthApi {
       'email': email,
       'code': code,
     }, expectedStatus: 200);
+  }
+
+  Future<void> login({required String email, required String password}) async {
+    final response = await _client.postJson('/api/auth/login', {
+      'email': email,
+      'password': password,
+    }, expectedStatus: 200);
+    final token = response['token'];
+    if (token is! String || token.trim().isEmpty) {
+      throw const ApiException(
+        'The server did not return a valid login token.',
+      );
+    }
+    _session.login(token);
   }
 
   void close() => _client.close();

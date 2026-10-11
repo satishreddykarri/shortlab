@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
 import 'data/auth_api.dart';
-import 'login_placeholder.dart';
+import 'login_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({
@@ -93,7 +93,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   void _openLogin() {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const LoginPlaceholder()),
+      MaterialPageRoute<void>(
+        builder: (_) => LoginScreen(authApi: widget.authApi),
+      ),
       (route) => route.isFirst,
     );
   }
