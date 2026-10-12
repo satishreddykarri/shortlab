@@ -60,6 +60,12 @@ class _UrlAnalyticsDialogState extends State<UrlAnalyticsDialog> {
     final width = MediaQuery.sizeOf(context).width;
     return AlertDialog(
       key: const ValueKey('url-analytics-dialog'),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFDDE4DE)),
+      ),
       title: Row(
         children: [
           const Expanded(child: Text('Link analytics')),
@@ -133,7 +139,7 @@ class _UrlAnalyticsDialogState extends State<UrlAnalyticsDialog> {
               Text(
                 widget.shortUrl,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: const Color(0xFF4658E8),
+                  color: const Color(0xFF2D7064),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -209,7 +215,8 @@ class _ClickCard extends StatelessWidget {
       key: ValueKey('click-${click.id}'),
       margin: const EdgeInsets.only(top: 8),
       elevation: 0,
-      color: const Color(0xFFF6F7FA),
+      color: const Color(0xFFF3F5F1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -238,8 +245,22 @@ class _AnalyticsField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: SelectableText('$label: $value'),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SelectableText.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: const Color(0xFF586760),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            TextSpan(text: value),
+          ],
+        ),
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
     );
   }
 }

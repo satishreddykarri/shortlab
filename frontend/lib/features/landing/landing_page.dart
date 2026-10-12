@@ -19,8 +19,6 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -72,33 +70,10 @@ class LandingPage extends StatelessWidget {
                           const SizedBox(height: 54),
                           const _LinkIllustration(),
                         ],
-                        const SizedBox(height: 70),
+                        SizedBox(height: isCompact ? 60 : 84),
                         const Divider(height: 1),
-                        const SizedBox(height: 24),
-                        Wrap(
-                          spacing: 24,
-                          runSpacing: 14,
-                          children: const [
-                            _FeatureLabel(
-                              icon: Icons.tune_rounded,
-                              label: 'Flexible shortening methods',
-                            ),
-                            _FeatureLabel(
-                              icon: Icons.schedule_rounded,
-                              label: 'Optional link expiration',
-                            ),
-                            _FeatureLabel(
-                              icon: Icons.insights_rounded,
-                              label: 'Click analytics',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 36),
-                        Text(
-                          'A simple home for every link you share.',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: colors.onSurfaceVariant),
-                        ),
+                        const SizedBox(height: 48),
+                        const _InformationSection(),
                       ],
                     ),
                   ),
@@ -108,6 +83,266 @@ class LandingPage extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class _InformationSection extends StatelessWidget {
+  const _InformationSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 760;
+        final capabilities = const [
+          _Capability(
+            number: '01',
+            title: 'Choose your format',
+            detail:
+                'Use Base62, hash, random, UUID, or set a custom alias for a shortened URL.',
+          ),
+          _Capability(
+            number: '02',
+            title: 'Set an expiry',
+            detail:
+                'Choose an optional expiration date when a link should stop working.',
+          ),
+          _Capability(
+            number: '03',
+            title: 'Review activity',
+            detail:
+                'Open link analytics from your dashboard to see how your links are performing.',
+          ),
+        ];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'More than a shorter URL',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontSize: isCompact ? 30 : 38,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 660),
+              child: Text(
+                'ShortLab gives you control over how links are created, when they expire, and what happens after you share them.',
+                style: theme.textTheme.bodyLarge,
+              ),
+            ),
+            const SizedBox(height: 34),
+            if (isCompact)
+              Column(
+                children: [
+                  for (var index = 0; index < capabilities.length; index++) ...[
+                    _CapabilityItem(capability: capabilities[index]),
+                    if (index < capabilities.length - 1) ...[
+                      const SizedBox(height: 22),
+                      const Divider(height: 1),
+                      const SizedBox(height: 22),
+                    ],
+                  ],
+                ],
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var index = 0; index < capabilities.length; index++) ...[
+                    Expanded(
+                      child: _CapabilityItem(capability: capabilities[index]),
+                    ),
+                    if (index < capabilities.length - 1)
+                      const SizedBox(width: 30),
+                  ],
+                ],
+              ),
+            const SizedBox(height: 58),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(isCompact ? 20 : 30),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF1F6),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'From destination to data',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'A straightforward workflow, with the useful details close at hand.',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 26),
+                  if (isCompact)
+                    const Column(
+                      children: [
+                        _WorkflowStep(
+                          number: '1',
+                          title: 'Add a destination',
+                          detail: 'Paste the long URL you want to share.',
+                        ),
+                        SizedBox(height: 20),
+                        _WorkflowStep(
+                          number: '2',
+                          title: 'Make it yours',
+                          detail: 'Choose a format and optional expiry.',
+                        ),
+                        SizedBox(height: 20),
+                        _WorkflowStep(
+                          number: '3',
+                          title: 'Share and review',
+                          detail: 'Copy your link and check its analytics.',
+                        ),
+                      ],
+                    )
+                  else
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _WorkflowStep(
+                            number: '1',
+                            title: 'Add a destination',
+                            detail: 'Paste the long URL you want to share.',
+                          ),
+                        ),
+                        SizedBox(width: 24),
+                        Expanded(
+                          child: _WorkflowStep(
+                            number: '2',
+                            title: 'Make it yours',
+                            detail: 'Choose a format and optional expiry.',
+                          ),
+                        ),
+                        SizedBox(width: 24),
+                        Expanded(
+                          child: _WorkflowStep(
+                            number: '3',
+                            title: 'Share and review',
+                            detail: 'Copy your link and check its analytics.',
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _Capability {
+  const _Capability({
+    required this.number,
+    required this.title,
+    required this.detail,
+  });
+
+  final String number;
+  final String title;
+  final String detail;
+}
+
+class _CapabilityItem extends StatelessWidget {
+  const _CapabilityItem({required this.capability});
+
+  final _Capability capability;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          capability.number,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: const Color(0xFF2D7064),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          capability.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: const Color(0xFF1D2B27),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(capability.detail, style: theme.textTheme.bodyMedium),
+      ],
+    );
+  }
+}
+
+class _WorkflowStep extends StatelessWidget {
+  const _WorkflowStep({
+    required this.number,
+    required this.title,
+    required this.detail,
+  });
+
+  final String number;
+  final String title;
+  final String detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            number,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: const Color(0xFF2D7064),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(detail, style: theme.textTheme.bodyMedium),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -139,7 +374,7 @@ class _Header extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFF4658E8),
+                color: const Color(0xFF2D7064),
                 borderRadius: BorderRadius.circular(13),
               ),
               child: const Icon(
@@ -152,9 +387,8 @@ class _Header extends StatelessWidget {
             Text(
               'ShortLab',
               style: textTheme.titleLarge?.copyWith(
-                color: const Color(0xFF18233B),
+                color: const Color(0xFF1D2B27),
                 fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
               ),
             ),
           ],
@@ -206,13 +440,13 @@ class _HeroCopy extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF0FF),
-            borderRadius: BorderRadius.circular(30),
+            color: const Color(0xFFE5EEE8),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: const Text(
             'LINKS, YOUR WAY',
             style: TextStyle(
-              color: Color(0xFF4658E8),
+              color: Color(0xFF2D7064),
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.1,
@@ -258,28 +492,5 @@ class _LinkIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const UrlShorteningArtwork(height: 390);
-  }
-}
-
-class _FeatureLabel extends StatelessWidget {
-  const _FeatureLabel({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 280),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: const Color(0xFF4658E8)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -312,28 +312,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.link_rounded, color: Color(0xFF4658E8)),
+            const Icon(Icons.link_rounded, color: Color(0xFF2D7064)),
             const SizedBox(width: 8),
             Text(
               'ShortLab',
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF18233B),
+                color: const Color(0xFF1D2B27),
               ),
             ),
           ],
         ),
         actions: [
-          if (MediaQuery.sizeOf(context).width >= 520)
+          if (screenWidth >= 720)
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(widget.email),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 240),
+                  child: Text(
+                    widget.email,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
             ),
           TextButton(
@@ -363,8 +371,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Create and manage your shortened links.',
+                          'Create and manage every destination from one workspace.',
                           style: theme.textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 24),
+                        _WorkspaceSummary(
+                          linkCount: _urls?.length,
+                          expiringCount:
+                              _urls
+                                  ?.where((url) => url.expiresAt != null)
+                                  .length,
+                          methodCount: _urlAlgorithms.length,
                         ),
                         const SizedBox(height: 28),
                         _buildCreateForm(context),
@@ -405,8 +422,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       elevation: 0,
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Color(0xFFE8EAF1)),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFDDE4DE)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -570,8 +587,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         elevation: 0,
         color: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: Color(0xFFE8EAF1)),
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFFDDE4DE)),
         ),
         child: const Padding(
           padding: EdgeInsets.all(32),
@@ -634,8 +651,8 @@ class _CreatedResult extends StatelessWidget {
       key: const ValueKey('created-url-result'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF7F2),
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFE7F1EB),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,7 +660,7 @@ class _CreatedResult extends StatelessWidget {
           const Text(
             'Short link created',
             style: TextStyle(
-              color: Color(0xFF126D58),
+              color: Color(0xFF2D7064),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -652,13 +669,78 @@ class _CreatedResult extends StatelessWidget {
             shortUrl,
             key: const ValueKey('created-short-url'),
             style: const TextStyle(
-              color: Color(0xFF4658E8),
+              color: Color(0xFF2D7064),
               fontWeight: FontWeight.w600,
             ),
           ),
           Text('Code: ${url.shortCode}'),
         ],
       ),
+    );
+  }
+}
+
+class _WorkspaceSummary extends StatelessWidget {
+  const _WorkspaceSummary({
+    required this.linkCount,
+    required this.expiringCount,
+    required this.methodCount,
+  });
+
+  final int? linkCount;
+  final int? expiringCount;
+  final int methodCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 34,
+      runSpacing: 16,
+      children: [
+        _SummaryValue(
+          label: 'SHORT LINKS',
+          value: linkCount?.toString() ?? '...',
+        ),
+        _SummaryValue(
+          label: 'WITH EXPIRY',
+          value: expiringCount?.toString() ?? '...',
+        ),
+        _SummaryValue(label: 'METHODS', value: methodCount.toString()),
+      ],
+    );
+  }
+}
+
+class _SummaryValue extends StatelessWidget {
+  const _SummaryValue({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: const Color(0xFF2D7064),
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: const Color(0xFF586760),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -687,8 +769,8 @@ class _UrlCard extends StatelessWidget {
       elevation: 0,
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0xFFE8EAF1)),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFDDE4DE)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -699,7 +781,7 @@ class _UrlCard extends StatelessWidget {
               shortUrl,
               key: ValueKey('short-url-${url.id}'),
               style: textTheme.titleMedium?.copyWith(
-                color: const Color(0xFF4658E8),
+                color: const Color(0xFF2D7064),
                 fontWeight: FontWeight.w700,
               ),
             ),

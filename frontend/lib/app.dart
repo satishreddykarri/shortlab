@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/auth/auth_session.dart';
 import 'core/navigation/app_routes.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/animated_link_backdrop.dart';
 import 'features/auth/data/auth_api.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/registration_screen.dart';
@@ -52,6 +53,14 @@ class _ShortLabAppState extends State<ShortLabApp> {
       title: 'ShortLab',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      builder:
+          (context, child) => Stack(
+            fit: StackFit.expand,
+            children: [
+              const IgnorePointer(child: AnimatedLinkBackdrop()),
+              if (child != null) child,
+            ],
+          ),
       initialRoute: AppRoutes.home,
       onGenerateRoute: (settings) {
         switch (settings.name) {

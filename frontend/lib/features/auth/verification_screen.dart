@@ -106,23 +106,26 @@ class _VerificationScreenState extends State<VerificationScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify your email')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Verify your email'),
+      ),
       body: AuthExperienceLayout(
-        child: Center(
+        child: Align(
+          alignment: Alignment.centerRight,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
               child: Card(
-                elevation: 12,
+                elevation: 0,
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(26),
-                  side: const BorderSide(color: Color(0xFFF0F2F8)),
+                  borderRadius: BorderRadius.circular(18),
+                  side: const BorderSide(color: Color(0xFFE4E7ED)),
                 ),
-                shadowColor: const Color(0x1424345E),
                 child: Padding(
-                  padding: const EdgeInsets.all(30),
+                  padding: const EdgeInsets.all(26),
                   child:
                       _isVerified
                           ? _SuccessContent(onLogin: _openLogin)

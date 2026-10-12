@@ -14,21 +14,26 @@ class AuthExperienceLayout extends StatelessWidget {
         final width = constraints.maxWidth;
 
         if (width >= 980) {
-          return Center(
+          return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1280),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 20,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Expanded(flex: 7, child: _AuthHero()),
-                    const SizedBox(width: 28),
-                    Expanded(flex: 5, child: child),
-                  ],
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1280),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 20,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Expanded(flex: 7, child: _AuthHero()),
+                        const SizedBox(width: 28),
+                        Expanded(flex: 5, child: child),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -149,15 +154,12 @@ class _AuthHero extends StatelessWidget {
         ),
         const SizedBox(height: 42),
         Text(
-          'Long links in.\nSmart links out.',
-          style: theme.textTheme.headlineLarge?.copyWith(
-            fontSize: 46,
-            letterSpacing: -1.8,
-          ),
+          'A better handle\non every link.',
+          style: theme.textTheme.headlineLarge?.copyWith(fontSize: 44),
         ),
         const SizedBox(height: 14),
         Text(
-          'Create, manage, and understand every link you share.',
+          'Choose how links are made, share them cleanly, and review click activity in one workspace.',
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 30),
@@ -187,19 +189,8 @@ class _BrandMark extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6174FF), Color(0xFF4658E8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(size * 0.32),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x334658E8),
-            blurRadius: 14,
-            offset: Offset(0, 6),
-          ),
-        ],
+        color: const Color(0xFF2D7064),
+        borderRadius: BorderRadius.circular(size * 0.24),
       ),
       child: Icon(Icons.link_rounded, color: Colors.white, size: size * 0.58),
     );
@@ -217,18 +208,18 @@ class _FeatureChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF0FF),
-        borderRadius: BorderRadius.circular(30),
+        color: const Color(0xFFE5EEE8),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: const Color(0xFF4658E8), size: 16),
+          Icon(icon, color: const Color(0xFF2D7064), size: 16),
           const SizedBox(width: 7),
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF303E8F),
+              color: Color(0xFF31574F),
               fontWeight: FontWeight.w600,
               fontSize: 12,
             ),

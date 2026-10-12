@@ -135,8 +135,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('Create your account'),
@@ -164,7 +165,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ? 440.0
                     : (isTablet ? 520.0 : width.clamp(280.0, 480.0));
 
-            return Center(
+            return Align(
+              alignment: Alignment.centerRight,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 32 : 16,
@@ -193,7 +195,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                               fontSize: width > 1200 ? 60 : 52,
                                               height: 0.95,
                                               fontWeight: FontWeight.w800,
-                                              color: const Color(0xFF1E2433),
+                                              color: const Color(0xFF1D2B27),
                                             ),
                                         textAlign: TextAlign.left,
                                       ),
@@ -202,7 +204,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         'Create, manage, and understand every link you share.',
                                         style: theme.textTheme.titleMedium
                                             ?.copyWith(
-                                              color: const Color(0xFF4D5668),
+                                              color: const Color(0xFF586760),
                                               height: 1.5,
                                               fontSize: 18,
                                             ),
@@ -229,13 +231,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                             colors: [
-                                              Color(0xFF1D2D7A),
-                                              Color(0xFF4337D7),
+                                              Color(0xFF1D2B27),
+                                              Color(0xFF2D7064),
                                             ],
                                           ),
                                           boxShadow: const [
                                             BoxShadow(
-                                              color: Color(0x2B2A3D8F),
+                                              color: Color(0x222D7064),
                                               blurRadius: 24,
                                               offset: Offset(0, 18),
                                             ),
@@ -281,14 +283,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               SizedBox(
                                 width: formWidth,
                                 child: Card(
-                                  elevation: 18,
+                                  key: const ValueKey('registration-form-card'),
+                                  elevation: 0,
                                   color: Colors.white,
-                                  shadowColor: const Color(0x1E2A4A7F),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(18),
+                                    side: const BorderSide(
+                                      color: Color(0xFFE4E7ED),
+                                    ),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(28),
+                                    padding: const EdgeInsets.all(24),
                                     child: Form(
                                       key: _formKey,
                                       autovalidateMode:
@@ -438,10 +443,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             ],
                           )
                           : Card(
-                            elevation: 12,
+                            key: const ValueKey('registration-form-card'),
+                            elevation: 0,
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
+                              borderRadius: BorderRadius.circular(18),
+                              side: const BorderSide(color: Color(0xFFE4E7ED)),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(24),
@@ -588,19 +595,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E7FF)),
+        border: Border.all(color: const Color(0xFFDDE4DE)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          Icon(Icons.link_rounded, color: Color(0xFF5B5CE6), size: 22),
+          Icon(Icons.link_rounded, color: Color(0xFF2D7064), size: 22),
           SizedBox(width: 8),
           Text(
             'ShortLab',
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 18,
-              color: Color(0xFF1E1F32),
+              color: Color(0xFF1D2B27),
             ),
           ),
         ],
@@ -637,7 +644,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         children: [
           Icon(
             isPrimary ? Icons.link_rounded : Icons.short_text_rounded,
-            color: isPrimary ? const Color(0xFF5B5CE6) : Colors.white70,
+            color: isPrimary ? const Color(0xFF2D7064) : Colors.white70,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -646,7 +653,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               style: TextStyle(
                 fontSize: isPrimary ? 23 : 18,
                 fontWeight: FontWeight.w600,
-                color: isPrimary ? const Color(0xFF1E2433) : Colors.white,
+                color: isPrimary ? const Color(0xFF1D2B27) : Colors.white,
               ),
             ),
           ),
@@ -683,21 +690,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        floatingLabelStyle: const TextStyle(color: Color(0xFF4B5ED6)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF2D7064)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFDDE4DE)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFDDE4DE)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF5B5CE6), width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF2D7064), width: 1.5),
         ),
         filled: true,
-        fillColor: const Color(0xFFF8F9FD),
+        fillColor: const Color(0xFFFBFCFA),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 18,
@@ -735,21 +742,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         labelText: label,
         hintText: hintText,
         helperText: helperText,
-        floatingLabelStyle: const TextStyle(color: Color(0xFF4B5ED6)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF2D7064)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFDDE4DE)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFDDE4DE)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF5B5CE6), width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF2D7064), width: 1.5),
         ),
         filled: true,
-        fillColor: const Color(0xFFF8F9FD),
+        fillColor: const Color(0xFFFBFCFA),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 18,
@@ -775,14 +782,14 @@ class _InfoPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE2E7FF)),
+        color: Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFDDE4DE)),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: Color(0xFF2C3550),
+          color: Color(0xFF31574F),
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),

@@ -23,6 +23,9 @@ void main() {
     expect(find.text('Make every link work smarter.'), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
     expect(find.text('Register'), findsOneWidget);
+    expect(find.text('More than a shorter URL'), findsOneWidget);
+    expect(find.text('Choose your format'), findsOneWidget);
+    expect(find.text('Add a destination'), findsOneWidget);
   });
 
   testWidgets('registration uses responsive URL-shortening artwork', (
@@ -43,7 +46,7 @@ void main() {
       find.byKey(const ValueKey('url-shortening-artwork')),
       findsOneWidget,
     );
-    expect(find.text('Long links in.\nSmart links out.'), findsOneWidget);
+    expect(find.text('A better handle\non every link.'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     tester.view.physicalSize = const Size(390, 844);
@@ -52,16 +55,48 @@ void main() {
       find.byKey(const ValueKey('url-shortening-artwork')),
       findsOneWidget,
     );
-    expect(find.text('Long links in.\nSmart links out.'), findsNothing);
+    expect(find.text('A better handle\non every link.'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('registration and verification submit backend DTOs', (
+  testWidgets('auth forms are right aligned without back buttons on desktop', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _createAuthApi(_RecordingClient([]));
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BackButton), findsNothing);
+    expect(
+      tester.getRect(find.byKey(const ValueKey('login-form-card'))).center.dx,
+      greaterThan(720),
+    );
+
+    await tester.tap(find.text('Create an account'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BackButton), findsNothing);
+    expect(
+      tester
+          .getRect(find.byKey(const ValueKey('registration-form-card')))
+          .center
+          .dx,
+      greaterThan(720),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('registration submits account details without verification', (
     tester,
   ) async {
     final client = _RecordingClient([
       http.Response('{"message":"registration successful","user_id":1}', 201),
-      http.Response('{"message":"email verified successfully"}', 200),
     ]);
     final api = _createAuthApi(client);
     addTearDown(api.close);
@@ -90,8 +125,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('register-submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Check your inbox'), findsOneWidget);
-    expect(find.text('ari@example.com'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Check your inbox'), findsNothing);
     expect(client.requests, hasLength(1));
     expect(client.requests[0].url.path, '/api/auth/register');
     expect(jsonDecode(client.requests[0].body), {
@@ -101,27 +136,7 @@ void main() {
       'confirm_password': 'Password@123',
     });
     expect(client.requests[0].headers, isNot(contains('Authorization')));
-
-    await tester.enterText(
-      find.byKey(const ValueKey('verification-code')),
-      '123456',
-    );
-    await tester.ensureVisible(find.byKey(const ValueKey('verify-submit')));
-    await tester.tap(find.byKey(const ValueKey('verify-submit')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Email verified'), findsOneWidget);
-    expect(client.requests, hasLength(2));
-    expect(client.requests[1].url.path, '/api/auth/verify-email');
-    expect(jsonDecode(client.requests[1].body), {
-      'email': 'ari@example.com',
-      'code': '123456',
-    });
-    expect(client.requests[1].headers, isNot(contains('Authorization')));
-
-    await tester.tap(find.byKey(const ValueKey('go-to-login')));
-    await tester.pumpAndSettle();
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(client.requests, hasLength(1));
   });
 
   testWidgets('registration validation prevents invalid API requests', (

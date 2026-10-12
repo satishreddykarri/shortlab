@@ -36,7 +36,7 @@ class _UrlShorteningArtworkState extends State<UrlShorteningArtwork>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF111A3D), Color(0xFF252B68), Color(0xFF493FE0)],
+              colors: [Color(0xFF1D2B27), Color(0xFF28584F), Color(0xFF34786B)],
             ),
           ),
           child: LayoutBuilder(
@@ -49,22 +49,6 @@ class _UrlShorteningArtworkState extends State<UrlShorteningArtwork>
                   return Stack(
                     clipBehavior: Clip.hardEdge,
                     children: [
-                      Positioned(
-                        top: -76,
-                        right: -46,
-                        child: _GlowOrb(
-                          size: compact ? 180 : 240,
-                          color: const Color(0x704E8BFF),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -105,
-                        left: -68,
-                        child: _GlowOrb(
-                          size: compact ? 190 : 270,
-                          color: const Color(0x6047D7C1),
-                        ),
-                      ),
                       Positioned.fill(
                         child: CustomPaint(
                           painter: _OrbitPainter(progress: _animation.value),
@@ -157,7 +141,7 @@ class _LinkPreviewCard extends StatelessWidget {
         padding: EdgeInsets.all(compact ? 14 : 18),
         decoration: BoxDecoration(
           color: isShort ? const Color(0xF21D2851) : const Color(0xF8FFFFFF),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isShort ? const Color(0x776A7AFF) : const Color(0xBFFFFFFF),
           ),
@@ -196,7 +180,7 @@ class _LinkPreviewCard extends StatelessWidget {
                     style: TextStyle(
                       color:
                           isShort
-                              ? const Color(0xFFB8C4EF)
+                              ? const Color(0xFFB8C9C1)
                               : const Color(0xFF737D91),
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -209,7 +193,7 @@ class _LinkPreviewCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: isShort ? Colors.white : const Color(0xFF18233B),
+                      color: isShort ? Colors.white : const Color(0xFF1D2B27),
                       fontSize: compact ? 12 : 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -220,7 +204,7 @@ class _LinkPreviewCard extends StatelessWidget {
             if (isShort)
               const Icon(
                 Icons.content_copy_rounded,
-                color: Color(0xFF8E9BCA),
+                color: Color(0xFF8EA69C),
                 size: 16,
               ),
           ],
@@ -249,13 +233,13 @@ class _FloatingBadge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
           color: const Color(0xB52A376A),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color(0x447C8AFF)),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0x5575A99A)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: const Color(0xFF8DE8D9), size: 13),
+            Icon(icon, color: const Color(0xFF9AD0B7), size: 13),
             const SizedBox(width: 5),
             Text(
               label,
@@ -268,25 +252,6 @@ class _FloatingBadge extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
       ),
     );
   }
@@ -314,7 +279,7 @@ class _OrbitPainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0x779DA9FF)
+        ..color = const Color(0x779CC3B4)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
@@ -327,7 +292,7 @@ class _OrbitPainter extends CustomPainter {
           index == 0 ? 3 : 1.4,
           Paint()
             ..color =
-                index == 0 ? const Color(0xFF75F0D7) : const Color(0x668FA0FF),
+                index == 0 ? const Color(0xFFC58A5C) : const Color(0x668EB7A9),
         );
       }
     }
