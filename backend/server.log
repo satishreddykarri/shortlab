@@ -1,0 +1,174 @@
+2026/10/12 22:45:43 Database connected successfully
+
+2026/10/12 22:45:44 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[776.971ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'[0m
+
+2026/10/12 22:45:45 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[518.231ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2026/10/12 22:45:45 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[525.069ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'neondb' AND table_schema = CURRENT_SCHEMA() AND table_name = 'users'[0m
+
+2026/10/12 22:45:46 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[258.483ms] [33m[rows:-][35m SELECT * FROM "users" LIMIT 5[0m
+
+2026/10/12 22:45:46 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[542.277ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users' AND constraint_type = 'UNIQUE'[0m
+
+2026/10/12 22:45:47 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[527.090ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users'[0m
+
+2026/10/12 22:45:47 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[522.793ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type	FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())	WHERE a.attnum > 0	AND NOT a.attisdropped	AND b.relname = 'users'[0m
+
+2026/10/12 22:45:48 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[517.790ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:48 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.885ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'name') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:48 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.741ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'email') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:48 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.784ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'password_hash') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:49 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[263.617ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'is_email_verified') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:49 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[265.118ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'verification_code') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:49 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[256.187ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'verification_code_expiry') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:50 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[258.329ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'created_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:50 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.792ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'updated_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:50 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[533.184ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_email' AND schemaname = CURRENT_SCHEMA()[0m
+
+2026/10/12 22:45:51 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[263.692ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND table_type = 'BASE TABLE'[0m
+
+2026/10/12 22:45:51 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.949ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2026/10/12 22:45:51 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[266.444ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'neondb' AND table_schema = CURRENT_SCHEMA() AND table_name = 'urls'[0m
+
+2026/10/12 22:45:51 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[267.009ms] [33m[rows:-][35m SELECT * FROM "urls" LIMIT 5[0m
+
+2026/10/12 22:45:52 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[263.457ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'urls' AND constraint_type = 'UNIQUE'[0m
+
+2026/10/12 22:45:52 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[263.484ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'urls'[0m
+
+2026/10/12 22:45:52 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.541ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type	FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())	WHERE a.attnum > 0	AND NOT a.attisdropped	AND b.relname = 'urls'[0m
+
+2026/10/12 22:45:52 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[266.251ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:53 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.413ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'user_id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:53 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[262.505ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'original_url') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:53 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[267.803ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'short_code') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:53 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[257.643ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'algorithm') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:54 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[257.615ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'expires_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:54 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.422ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'created_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:54 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[259.630ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND column_name = 'updated_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'urls' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:55 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[523.502ms] [33m[rows:1][35m SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'urls' AND constraint_name = 'fk_users_urls'[0m
+
+2026/10/12 22:45:55 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[256.762ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'urls' AND indexname = 'idx_urls_user_id' AND schemaname = CURRENT_SCHEMA()[0m
+
+2026/10/12 22:45:55 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[258.287ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'urls' AND indexname = 'idx_urls_short_code' AND schemaname = CURRENT_SCHEMA()[0m
+
+2026/10/12 22:45:56 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[258.306ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND table_type = 'BASE TABLE'[0m
+
+2026/10/12 22:45:56 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[256.917ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2026/10/12 22:45:56 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.681ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'neondb' AND table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks'[0m
+
+2026/10/12 22:45:56 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[278.163ms] [33m[rows:-][35m SELECT * FROM "url_clicks" LIMIT 5[0m
+
+2026/10/12 22:45:57 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[265.158ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'url_clicks' AND constraint_type = 'UNIQUE'[0m
+
+2026/10/12 22:45:57 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[262.748ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'neondb' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'url_clicks'[0m
+
+2026/10/12 22:45:57 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[256.989ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type	FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())	WHERE a.attnum > 0	AND NOT a.attisdropped	AND b.relname = 'url_clicks'[0m
+
+2026/10/12 22:45:57 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[260.579ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:58 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.046ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'url_id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:58 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[266.522ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'clicked_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:58 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[259.426ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'ip_address') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:58 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[258.977ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'user_agent') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:59 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.789ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND column_name = 'referrer') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'url_clicks' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2026/10/12 22:45:59 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[259.345ms] [33m[rows:1][35m SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'url_clicks' AND constraint_name = 'fk_urls_clicks'[0m
+
+2026/10/12 22:45:59 [32mC:/Users/satis/shortlab/backend/cmd/server/main.go:38 [33mSLOW SQL >= 200ms
+[0m[31;1m[261.332ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'url_clicks' AND indexname = 'idx_url_clicks_url_id' AND schemaname = CURRENT_SCHEMA()[0m
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /api/auth/register        --> github.com/satishreddykarri/shortlab/handlers.(*AuthHandler).Register-fm (4 handlers)
+[GIN-debug] POST   /api/auth/verify-email    --> github.com/satishreddykarri/shortlab/handlers.(*AuthHandler).VerifyEmail-fm (4 handlers)
+[GIN-debug] POST   /api/auth/login           --> github.com/satishreddykarri/shortlab/handlers.(*AuthHandler).Login-fm (4 handlers)
+[GIN-debug] POST   /api/urls                 --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).Create-fm (5 handlers)
+[GIN-debug] GET    /api/urls                 --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).List-fm (5 handlers)
+[GIN-debug] DELETE /api/urls/:id             --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).Delete-fm (5 handlers)
+[GIN-debug] GET    /api/urls/:id/analytics   --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).Analytics-fm (5 handlers)
+[GIN-debug] GET    /api/urls/:id             --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).GetByID-fm (5 handlers)
+[GIN-debug] GET    /:shortCode               --> github.com/satishreddykarri/shortlab/handlers.(*URLHandler).Redirect-fm (4 handlers)
+[GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (4 handlers)
+2026/10/12 22:45:59 ShortLab backend starting on :8080
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [ERROR] listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+2026/10/12 22:45:59 listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+exit status 1

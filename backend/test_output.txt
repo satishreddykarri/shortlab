@@ -1,0 +1,13 @@
+=== RUN   TestSendVerificationCode_Success
+    email_service_test.go:15: expected api-key auth header, got ""
+    email_service_test.go:36: SendVerificationCode returned error: send verification email via Brevo: Post "http://127.0.0.1:54195": EOF
+--- FAIL: TestSendVerificationCode_Success (0.01s)
+=== RUN   TestSendVerificationCode_BrevoError
+--- PASS: TestSendVerificationCode_BrevoError (0.00s)
+=== RUN   TestSendVerificationCode_MissingConfig
+--- PASS: TestSendVerificationCode_MissingConfig (0.00s)
+=== RUN   TestSendVerificationCode_NetworkFailure
+--- PASS: TestSendVerificationCode_NetworkFailure (0.00s)
+FAIL
+FAIL	github.com/satishreddykarri/shortlab/services	4.149s
+FAIL

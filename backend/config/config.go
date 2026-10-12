@@ -10,7 +10,7 @@ type Config struct {
 	DatabaseURL        string
 	JWTSecret          string
 	JWTExpirationHours int
-	ResendAPIKey       string
+	BrevoAPIKey        string
 	EmailFrom          string
 	ServerPort         string
 	FrontendURL        string
@@ -31,7 +31,7 @@ func Load() *Config {
 		DatabaseURL:        os.Getenv("DATABASE_URL"),
 		JWTSecret:          os.Getenv("JWT_SECRET"),
 		JWTExpirationHours: expirationHours,
-		ResendAPIKey:       os.Getenv("RESEND_API_KEY"),
+		BrevoAPIKey:        os.Getenv("BREVO_API_KEY"),
 		EmailFrom:          os.Getenv("EMAIL_FROM"),
 		ServerPort:         os.Getenv("SERVER_PORT"),
 		FrontendURL:        os.Getenv("FRONTEND_URL"),
@@ -45,8 +45,8 @@ func Load() *Config {
 		log.Fatal("JWT_SECRET is not set")
 	}
 
-	if cfg.ResendAPIKey == "" {
-		log.Fatal("RESEND_API_KEY is not set")
+	if cfg.BrevoAPIKey == "" {
+		log.Fatal("BREVO_API_KEY is not set")
 	}
 
 	if cfg.EmailFrom == "" {
