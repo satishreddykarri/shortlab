@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 
 import '../../core/auth/auth_session.dart';
 import '../../core/config/api_config.dart';
+import '../../core/navigation/app_routes.dart';
 import '../../core/network/api_client.dart';
 import '../../core/widgets/async_state_view.dart';
 import '../auth/data/auth_api.dart';
-import '../landing/landing_page.dart';
 import 'url_analytics_dialog.dart';
 import '../urls/data/short_url.dart';
 import '../urls/data/url_api.dart';
@@ -304,12 +304,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _logout() {
     widget.authSession.logout();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(
-        builder: (_) => LandingPage(authApi: widget.authApi),
-      ),
-      (route) => route.isFirst,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
   }
 
   @override

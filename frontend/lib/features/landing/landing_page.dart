@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/navigation/app_routes.dart';
 import '../../core/widgets/url_shortening_artwork.dart';
 import '../auth/data/auth_api.dart';
-import '../auth/login_screen.dart';
-import '../auth/registration_screen.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({required this.authApi, super.key});
@@ -11,17 +10,11 @@ class LandingPage extends StatelessWidget {
   final AuthApi authApi;
 
   void _openRegistration(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => RegistrationScreen(authApi: authApi),
-      ),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.registration);
   }
 
   void _openLogin(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => LoginScreen(authApi: authApi)),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.login);
   }
 
   @override

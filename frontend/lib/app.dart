@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'core/auth/auth_session.dart';
+import 'core/navigation/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/auth_api.dart';
+import 'features/auth/login_screen.dart';
+import 'features/auth/registration_screen.dart';
+import 'features/dashboard/dashboard_screen.dart';
 import 'features/landing/landing_page.dart';
 
 class ShortLabApp extends StatefulWidget {
@@ -48,7 +52,40 @@ class _ShortLabAppState extends State<ShortLabApp> {
       title: 'ShortLab',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: LandingPage(authApi: _authApi),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case AppRoutes.home:
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) => LandingPage(authApi: _authApi),
+            );
+          case AppRoutes.login:
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) => LoginScreen(authApi: _authApi),
+            );
+          case AppRoutes.registration:
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) => RegistrationScreen(authApi: _authApi),
+            );
+          case AppRoutes.dashboard:
+            final email = settings.arguments;
+            if (email is! String) return null;
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder:
+                  (_) => DashboardScreen(
+                    authApi: _authApi,
+                    authSession: _authSession,
+                    email: email,
+                  ),
+            );
+          default:
+            return null;
+        }
+      },
     );
   }
 }

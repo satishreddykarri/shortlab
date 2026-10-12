@@ -46,13 +46,24 @@ func NewEmailService() *EmailService {
 	}
 }
 
+func validateBrevoAPIKey(apiKey string) error {
+	key := strings.TrimSpace(apiKey)
+	if key == "" {
+		return errors.New("BREVO_API_KEY is not configured")
+	}
+	if strings.HasPrefix(strings.ToLower(key), "xsmtpsib-") {
+		return errors.New("BREVO_API_KEY looks like an SMTP key. Use a Brevo API key that starts with xkeysib-")
+	}
+	return nil
+}
+
 // Sends the verification code required to activate a new account.
 func (s *EmailService) SendVerificationCode(email string, code string) error {
 	if s == nil {
 		return errors.New("email service is not configured")
 	}
-	if strings.TrimSpace(s.apiKey) == "" {
-		return errors.New("BREVO_API_KEY is not configured")
+	if err := validateBrevoAPIKey(s.apiKey); err != nil {
+		return err
 	}
 	if strings.TrimSpace(s.from) == "" {
 		return errors.New("EMAIL_FROM is not configured")

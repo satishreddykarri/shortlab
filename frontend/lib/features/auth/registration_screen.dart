@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/navigation/app_routes.dart';
 import '../../core/network/api_client.dart';
 import 'auth_experience_layout.dart';
 import 'data/auth_api.dart';
-import 'login_screen.dart';
-import 'verification_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({required this.authApi, super.key});
@@ -56,15 +55,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         confirmPassword: _confirmPasswordController.text,
       );
       if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder:
-              (_) => VerificationScreen(
-                authApi: widget.authApi,
-                initialEmail: email,
-              ),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => route.isFirst);
     } on ApiException catch (error) {
       if (mounted) {
         setState(() => _serverError = error.message);
@@ -153,11 +146,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 _isSubmitting
                     ? null
                     : () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => LoginScreen(authApi: widget.authApi),
-                        ),
-                      );
+                      Navigator.of(context).pushNamed(AppRoutes.login);
                     },
             child: const Text('Log in'),
           ),
@@ -167,20 +156,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       body: AuthExperienceLayout(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 860;
+            final width = constraints.maxWidth;
+            final isTablet = width >= 700 && width < 1100;
+            final isDesktop = width >= 1100;
             final formWidth =
-                isWide ? 440.0 : constraints.maxWidth.clamp(320.0, 520.0);
+                isDesktop
+                    ? 440.0
+                    : (isTablet ? 520.0 : width.clamp(280.0, 480.0));
 
             return Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isWide ? 32 : 18,
-                  vertical: 24,
+                  horizontal: isDesktop ? 32 : 16,
+                  vertical: isDesktop ? 24 : 16,
                 ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1180),
                   child:
-                      isWide
+                      isDesktop
                           ? Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -191,48 +184,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.72,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          border: Border.all(
-                                            color: const Color(0xFFE2E7FF),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: const [
-                                            Icon(
-                                              Icons.link_rounded,
-                                              color: Color(0xFF5B5CE6),
-                                              size: 22,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              'ShortLab',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 18,
-                                                color: Color(0xFF1E1F32),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      _desktopBrandChip(),
                                       const SizedBox(height: 24),
                                       Text(
                                         'Long links in.\nSmart links out.',
                                         style: theme.textTheme.displaySmall
                                             ?.copyWith(
-                                              fontSize: 60,
+                                              fontSize: width > 1200 ? 60 : 52,
                                               height: 0.95,
                                               fontWeight: FontWeight.w800,
                                               color: const Color(0xFF1E2433),
@@ -250,10 +208,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                             ),
                                       ),
                                       const SizedBox(height: 26),
-                                      Wrap(
+                                      const Wrap(
                                         spacing: 10,
                                         runSpacing: 10,
-                                        children: const [
+                                        children: [
                                           _InfoPill(label: 'Fast redirects'),
                                           _InfoPill(label: 'Insights driven'),
                                           _InfoPill(label: 'No spam'),
@@ -287,87 +245,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(
-                                                  alpha: 0.16,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              child: const Text(
-                                                'Your destination',
-                                                style: TextStyle(
-                                                  color: Colors.white70,
-                                                  fontSize: 12,
-                                                  letterSpacing: 0.8,
-                                                ),
-                                              ),
-                                            ),
+                                            _heroTag('Your destination'),
                                             const SizedBox(height: 18),
-                                            Container(
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(18),
-                                              ),
-                                              child: Row(
-                                                children: const [
-                                                  Icon(
-                                                    Icons.link_rounded,
-                                                    color: Color(0xFF5B5CE6),
-                                                  ),
-                                                  SizedBox(width: 12),
-                                                  Expanded(
-                                                    child: Text(
-                                                      'example.com/long/article',
-                                                      style: TextStyle(
-                                                        fontSize: 23,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: Color(
-                                                          0xFF1E2433,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                            _heroCard(
+                                              'example.com/long/article',
+                                              true,
                                             ),
                                             const SizedBox(height: 26),
                                             Row(
                                               children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 6,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white
-                                                        .withValues(
-                                                          alpha: 0.12,
-                                                        ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
-                                                        ),
-                                                  ),
-                                                  child: const Text(
-                                                    'Your rules',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
+                                                _heroTag('Your rules'),
                                                 const Spacer(),
                                                 const Text(
                                                   'FAST',
@@ -380,35 +267,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                               ],
                                             ),
                                             const SizedBox(height: 18),
-                                            Container(
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(
-                                                  alpha: 0.08,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(18),
-                                              ),
-                                              child: Row(
-                                                children: const [
-                                                  Icon(
-                                                    Icons.short_text_rounded,
-                                                    color: Colors.white70,
-                                                  ),
-                                                  SizedBox(width: 12),
-                                                  Expanded(
-                                                    child: Text(
-                                                      'shortlab.io/aB29x',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                            _heroCard(
+                                              'shortlab.io/aB29x',
+                                              false,
                                             ),
                                           ],
                                         ),
@@ -721,6 +582,79 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  Widget _desktopBrandChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E7FF)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.link_rounded, color: Color(0xFF5B5CE6), size: 22),
+          SizedBox(width: 8),
+          Text(
+            'ShortLab',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: Color(0xFF1E1F32),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 12,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  Widget _heroCard(String label, bool isPrimary) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isPrimary ? Icons.link_rounded : Icons.short_text_rounded,
+            color: isPrimary ? const Color(0xFF5B5CE6) : Colors.white70,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: isPrimary ? 23 : 18,
+                fontWeight: FontWeight.w600,
+                color: isPrimary ? const Color(0xFF1E2433) : Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildField({
     required Key key,
     required TextEditingController controller,
@@ -741,10 +675,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       autofillHints: autofillHints,
       onTapOutside: (_) => _validateOnBlur(),
       onFieldSubmitted: (_) => _validateOnBlur(),
+      onChanged: (_) {
+        if (_serverError != null) {
+          setState(() => _serverError = null);
+        }
+      },
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF4B5ED6)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF5B5CE6), width: 1.5),
+        ),
         filled: true,
         fillColor: const Color(0xFFF8F9FD),
         contentPadding: const EdgeInsets.symmetric(
@@ -775,11 +726,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       autofillHints: const [AutofillHints.newPassword],
       onTapOutside: (_) => _validateOnBlur(),
       onFieldSubmitted: (_) => _validateOnBlur(),
+      onChanged: (_) {
+        if (_serverError != null) {
+          setState(() => _serverError = null);
+        }
+      },
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
         helperText: helperText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF4B5ED6)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE0E5F5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF5B5CE6), width: 1.5),
+        ),
         filled: true,
         fillColor: const Color(0xFFF8F9FD),
         contentPadding: const EdgeInsets.symmetric(

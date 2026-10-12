@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/navigation/app_routes.dart';
 import '../../core/network/api_client.dart';
-import '../dashboard/dashboard_screen.dart';
 import 'auth_experience_layout.dart';
 import 'data/auth_api.dart';
-import 'registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({required this.authApi, super.key});
@@ -49,6 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  void _validateOnBlur() {
+    FocusScope.of(context).unfocus();
+    _formKey.currentState?.validate();
+  }
+
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
@@ -65,16 +69,9 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       if (!mounted) return;
-      await Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder:
-              (_) => DashboardScreen(
-                authApi: widget.authApi,
-                authSession: widget.authApi.session,
-                email: email,
-              ),
-        ),
-      );
+      await Navigator.of(
+        context,
+      ).pushReplacementNamed(AppRoutes.dashboard, arguments: email);
     } on ApiException catch (error) {
       if (mounted) {
         setState(() => _serverError = error.message);
@@ -87,11 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _openRegistration() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => RegistrationScreen(authApi: widget.authApi),
-      ),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.registration);
   }
 
   @override
@@ -118,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(30),
                   child: Form(
                     key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.disabled,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -138,6 +131,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           enabled: !_isSubmitting,
                           keyboardType: TextInputType.emailAddress,
                           autofillHints: const [AutofillHints.username],
+                          onTapOutside: (_) => _validateOnBlur(),
+                          onFieldSubmitted: (_) => _validateOnBlur(),
+                          onChanged: (_) {
+                            if (_serverError != null) {
+                              setState(() => _serverError = null);
+                            }
+                          },
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             border: OutlineInputBorder(),
@@ -151,6 +151,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           enabled: !_isSubmitting,
                           obscureText: !_passwordVisible,
                           autofillHints: const [AutofillHints.password],
+                          onTapOutside: (_) => _validateOnBlur(),
+                          onChanged: (_) {
+                            if (_serverError != null) {
+                              setState(() => _serverError = null);
+                            }
+                          },
                           decoration: InputDecoration(
                             labelText: 'Password',
                             border: const OutlineInputBorder(),

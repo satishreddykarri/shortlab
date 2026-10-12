@@ -11,20 +11,23 @@ class AuthExperienceLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 900) {
+        final width = constraints.maxWidth;
+
+        if (width >= 980) {
           return Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1240),
+              constraints: const BoxConstraints(maxWidth: 1280),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 24,
+                  horizontal: 32,
+                  vertical: 20,
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Expanded(flex: 11, child: _AuthHero()),
-                    const SizedBox(width: 48),
-                    Expanded(flex: 10, child: child),
+                    const Expanded(flex: 7, child: _AuthHero()),
+                    const SizedBox(width: 28),
+                    Expanded(flex: 5, child: child),
                   ],
                 ),
               ),
@@ -32,35 +35,91 @@ class AuthExperienceLayout extends StatelessWidget {
           );
         }
 
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-              child: Row(
-                children: [
-                  _BrandMark(size: 34),
-                  const SizedBox(width: 10),
-                  Text(
-                    'ShortLab',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+        if (width >= 640) {
+          return SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 8),
+                        const _BrandRow(size: 36),
+                        const SizedBox(height: 18),
+                        SizedBox(
+                          height: 180,
+                          child: const UrlShorteningArtwork(),
+                        ),
+                        const SizedBox(height: 18),
+                        child,
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: SizedBox(
-                height: constraints.maxHeight < 620 ? 118 : 168,
-                child: const UrlShorteningArtwork(),
+          );
+        }
+
+        return SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 4),
+                      const _BrandRow(size: 30),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 140,
+                        child: const UrlShorteningArtwork(),
+                      ),
+                      const SizedBox(height: 16),
+                      child,
+                    ],
+                  ),
+                ),
               ),
             ),
-            Expanded(child: child),
-          ],
+          ),
         );
       },
+    );
+  }
+}
+
+class _BrandRow extends StatelessWidget {
+  const _BrandRow({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _BrandMark(size: size),
+        const SizedBox(width: 10),
+        Text(
+          'ShortLab',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+          ),
+        ),
+      ],
     );
   }
 }

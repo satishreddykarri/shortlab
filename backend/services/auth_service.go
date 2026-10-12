@@ -62,31 +62,17 @@ func (s *AuthService) Register(
 		return nil, err
 	}
 
-	verificationCode, err := generateVerificationCode()
-	if err != nil {
-		return nil, err
-	}
-
-	expiry := time.Now().Add(10 * time.Minute)
-
 	user := &models.User{
 		ID:                     uuid.New(),
 		Name:                   name,
 		Email:                  email,
 		PasswordHash:           string(passwordHash),
-		IsEmailVerified:        false,
-		VerificationCode:       verificationCode,
-		VerificationCodeExpiry: &expiry,
+		IsEmailVerified:        true,
+		VerificationCode:       "",
+		VerificationCodeExpiry: nil,
 	}
 
 	if err := s.userRepository.Create(user); err != nil {
-		return nil, err
-	}
-
-	if err := s.emailService.SendVerificationCode(
-		user.Email,
-		verificationCode,
-	); err != nil {
 		return nil, err
 	}
 
@@ -161,10 +147,6 @@ func (s *AuthService) Login(
 	user, err := s.userRepository.GetByEmail(email)
 	if err != nil {
 		return "", errors.New("invalid email or password")
-	}
-
-	if !user.IsEmailVerified {
-		return "", errors.New("email is not verified")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
