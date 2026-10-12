@@ -25,6 +25,37 @@ void main() {
     expect(find.text('Register'), findsOneWidget);
   });
 
+  testWidgets('registration uses responsive URL-shortening artwork', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _createAuthApi(_RecordingClient([]));
+    addTearDown(api.close);
+    await tester.pumpWidget(ShortLabApp(authApi: api));
+    await tester.tap(find.text('Register'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('url-shortening-artwork')),
+      findsOneWidget,
+    );
+    expect(find.text('Long links in.\nSmart links out.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('url-shortening-artwork')),
+      findsOneWidget,
+    );
+    expect(find.text('Long links in.\nSmart links out.'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('registration and verification submit backend DTOs', (
     tester,
   ) async {
@@ -75,6 +106,7 @@ void main() {
       find.byKey(const ValueKey('verification-code')),
       '123456',
     );
+    await tester.ensureVisible(find.byKey(const ValueKey('verify-submit')));
     await tester.tap(find.byKey(const ValueKey('verify-submit')));
     await tester.pumpAndSettle();
 
@@ -210,6 +242,7 @@ void main() {
       find.byKey(const ValueKey('login-password')),
       'Password@123',
     );
+    await tester.ensureVisible(find.byKey(const ValueKey('login-submit')));
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
 
@@ -270,6 +303,7 @@ void main() {
       find.byKey(const ValueKey('login-password')),
       'Password@123',
     );
+    await tester.ensureVisible(find.byKey(const ValueKey('login-submit')));
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
 
@@ -297,6 +331,7 @@ void main() {
       find.byKey(const ValueKey('login-password')),
       'Password@123',
     );
+    await tester.ensureVisible(find.byKey(const ValueKey('login-submit')));
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
 
@@ -858,6 +893,7 @@ Future<void> _login(WidgetTester tester) async {
     find.byKey(const ValueKey('login-password')),
     'Password@123',
   );
+  await tester.ensureVisible(find.byKey(const ValueKey('login-submit')));
   await tester.tap(find.byKey(const ValueKey('login-submit')));
   await tester.pumpAndSettle();
 }

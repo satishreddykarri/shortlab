@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import 'auth_experience_layout.dart';
 import 'data/auth_api.dart';
 import 'login_screen.dart';
 import 'verification_screen.dart';
@@ -155,154 +156,158 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           const SizedBox(width: 12),
         ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
-            child: Card(
-              elevation: 0,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: const BorderSide(color: Color(0xFFE8EAF1)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Join ShortLab',
-                        style: theme.textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Create an account to start managing your links.',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        key: const ValueKey('registration-name'),
-                        controller: _nameController,
-                        enabled: !_isSubmitting,
-                        textCapitalization: TextCapitalization.words,
-                        autofillHints: const [AutofillHints.name],
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                          border: OutlineInputBorder(),
+      body: AuthExperienceLayout(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: Card(
+                elevation: 12,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26),
+                  side: const BorderSide(color: Color(0xFFF0F2F8)),
+                ),
+                shadowColor: const Color(0x1424345E),
+                child: Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Join ShortLab',
+                          style: theme.textTheme.headlineMedium,
                         ),
-                        validator: _validateName,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const ValueKey('registration-email'),
-                        controller: _emailController,
-                        enabled: !_isSubmitting,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Create an account to start managing your links.',
+                          style: theme.textTheme.bodyMedium,
                         ),
-                        validator: _validateEmail,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const ValueKey('registration-password'),
-                        controller: _passwordController,
-                        enabled: !_isSubmitting,
-                        obscureText: !_passwordVisible,
-                        autofillHints: const [AutofillHints.newPassword],
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          helperText:
-                              'At least 8 characters with upper/lowercase, '
-                              'a number and a symbol.',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            tooltip:
-                                _passwordVisible
-                                    ? 'Hide password'
-                                    : 'Show password',
-                            onPressed:
-                                _isSubmitting
-                                    ? null
-                                    : () => setState(
-                                      () =>
-                                          _passwordVisible = !_passwordVisible,
-                                    ),
-                            icon: Icon(
-                              _passwordVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          key: const ValueKey('registration-name'),
+                          controller: _nameController,
+                          enabled: !_isSubmitting,
+                          textCapitalization: TextCapitalization.words,
+                          autofillHints: const [AutofillHints.name],
+                          decoration: const InputDecoration(
+                            labelText: 'Name',
+                            border: OutlineInputBorder(),
                           ),
+                          validator: _validateName,
                         ),
-                        validator: _validatePassword,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const ValueKey('registration-confirm-password'),
-                        controller: _confirmPasswordController,
-                        enabled: !_isSubmitting,
-                        obscureText: !_confirmPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm password',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            tooltip:
-                                _confirmPasswordVisible
-                                    ? 'Hide password'
-                                    : 'Show password',
-                            onPressed:
-                                _isSubmitting
-                                    ? null
-                                    : () => setState(
-                                      () =>
-                                          _confirmPasswordVisible =
-                                              !_confirmPasswordVisible,
-                                    ),
-                            icon: Icon(
-                              _confirmPasswordVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                          ),
-                        ),
-                        validator: _validateConfirmation,
-                      ),
-                      if (_serverError != null) ...[
                         const SizedBox(height: 16),
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            _serverError!,
-                            key: const ValueKey('registration-server-error'),
-                            style: TextStyle(color: theme.colorScheme.error),
+                        TextFormField(
+                          key: const ValueKey('registration-email'),
+                          controller: _emailController,
+                          enabled: !_isSubmitting,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
                           ),
+                          validator: _validateEmail,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          key: const ValueKey('registration-password'),
+                          controller: _passwordController,
+                          enabled: !_isSubmitting,
+                          obscureText: !_passwordVisible,
+                          autofillHints: const [AutofillHints.newPassword],
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            helperText:
+                                'At least 8 characters with upper/lowercase, '
+                                'a number and a symbol.',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              tooltip:
+                                  _passwordVisible
+                                      ? 'Hide password'
+                                      : 'Show password',
+                              onPressed:
+                                  _isSubmitting
+                                      ? null
+                                      : () => setState(
+                                        () =>
+                                            _passwordVisible =
+                                                !_passwordVisible,
+                                      ),
+                              icon: Icon(
+                                _passwordVisible
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                            ),
+                          ),
+                          validator: _validatePassword,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          key: const ValueKey('registration-confirm-password'),
+                          controller: _confirmPasswordController,
+                          enabled: !_isSubmitting,
+                          obscureText: !_confirmPasswordVisible,
+                          decoration: InputDecoration(
+                            labelText: 'Confirm password',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              tooltip:
+                                  _confirmPasswordVisible
+                                      ? 'Hide password'
+                                      : 'Show password',
+                              onPressed:
+                                  _isSubmitting
+                                      ? null
+                                      : () => setState(
+                                        () =>
+                                            _confirmPasswordVisible =
+                                                !_confirmPasswordVisible,
+                                      ),
+                              icon: Icon(
+                                _confirmPasswordVisible
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                            ),
+                          ),
+                          validator: _validateConfirmation,
+                        ),
+                        if (_serverError != null) ...[
+                          const SizedBox(height: 16),
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              _serverError!,
+                              key: const ValueKey('registration-server-error'),
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          key: const ValueKey('register-submit'),
+                          onPressed: _isSubmitting ? null : _submit,
+                          child:
+                              _isSubmitting
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : const Text('Create account'),
                         ),
                       ],
-                      const SizedBox(height: 24),
-                      FilledButton(
-                        key: const ValueKey('register-submit'),
-                        onPressed: _isSubmitting ? null : _submit,
-                        child:
-                            _isSubmitting
-                                ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                                : const Text('Create account'),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

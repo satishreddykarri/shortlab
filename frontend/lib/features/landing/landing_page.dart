@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/url_shortening_artwork.dart';
 import '../auth/data/auth_api.dart';
 import '../auth/login_screen.dart';
 import '../auth/registration_screen.dart';
@@ -263,137 +264,7 @@ class _LinkIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.12,
-      child: Container(
-        constraints: const BoxConstraints(maxHeight: 390),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEDF0FF),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              top: 24,
-              right: 30,
-              child: _Dot(color: const Color(0xFF9DA8FF), size: 12),
-            ),
-            Positioned(
-              bottom: 32,
-              left: 34,
-              child: _Dot(color: const Color(0xFFB3BDFB), size: 8),
-            ),
-            Container(
-              width: 182,
-              height: 182,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDCE1FF),
-                shape: BoxShape.circle,
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(-20, -27),
-              child: const _LinkCard(
-                icon: Icons.link_rounded,
-                title: 'One link',
-                subtitle: 'Your destination',
-                color: Color(0xFF4658E8),
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(22, 62),
-              child: const _LinkCard(
-                icon: Icons.auto_awesome_rounded,
-                title: 'Your style',
-                subtitle: 'Your shortening rules',
-                color: Color(0xFF168C73),
-              ),
-            ),
-            Positioned(
-              top: 58,
-              left: 36,
-              child: Icon(
-                Icons.add_rounded,
-                color: const Color(0xFF8D99F2),
-                size: 23,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LinkCard extends StatelessWidget {
-  const _LinkCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 224,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1718243B),
-            blurRadius: 28,
-            offset: Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Color(0xFF18233B),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF737D91),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return const UrlShorteningArtwork(height: 390);
   }
 }
 
@@ -416,22 +287,6 @@ class _FeatureLabel extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  const _Dot({required this.color, required this.size});
-
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

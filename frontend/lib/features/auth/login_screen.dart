@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
 import '../dashboard/dashboard_screen.dart';
+import 'auth_experience_layout.dart';
 import 'data/auth_api.dart';
 import 'registration_screen.dart';
 
@@ -99,113 +100,117 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Log in')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
-            child: Card(
-              elevation: 0,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: const BorderSide(color: Color(0xFFE8EAF1)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Welcome back',
-                        style: theme.textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Log in to continue to ShortLab.',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        key: const ValueKey('login-email'),
-                        controller: _emailController,
-                        enabled: !_isSubmitting,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.username],
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
+      body: AuthExperienceLayout(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: Card(
+                elevation: 12,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26),
+                  side: const BorderSide(color: Color(0xFFF0F2F8)),
+                ),
+                shadowColor: const Color(0x1424345E),
+                child: Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Welcome back',
+                          style: theme.textTheme.headlineMedium,
                         ),
-                        validator: _validateEmail,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const ValueKey('login-password'),
-                        controller: _passwordController,
-                        enabled: !_isSubmitting,
-                        obscureText: !_passwordVisible,
-                        autofillHints: const [AutofillHints.password],
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            tooltip:
+                        const SizedBox(height: 8),
+                        Text(
+                          'Log in to continue to ShortLab.',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          key: const ValueKey('login-email'),
+                          controller: _emailController,
+                          enabled: !_isSubmitting,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.username],
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateEmail,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          key: const ValueKey('login-password'),
+                          controller: _passwordController,
+                          enabled: !_isSubmitting,
+                          obscureText: !_passwordVisible,
+                          autofillHints: const [AutofillHints.password],
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              tooltip:
+                                  _passwordVisible
+                                      ? 'Hide password'
+                                      : 'Show password',
+                              onPressed:
+                                  _isSubmitting
+                                      ? null
+                                      : () => setState(
+                                        () =>
+                                            _passwordVisible =
+                                                !_passwordVisible,
+                                      ),
+                              icon: Icon(
                                 _passwordVisible
-                                    ? 'Hide password'
-                                    : 'Show password',
-                            onPressed:
-                                _isSubmitting
-                                    ? null
-                                    : () => setState(
-                                      () =>
-                                          _passwordVisible = !_passwordVisible,
-                                    ),
-                            icon: Icon(
-                              _passwordVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
                             ),
                           ),
+                          validator: _validatePassword,
+                          onFieldSubmitted: (_) => _submit(),
                         ),
-                        validator: _validatePassword,
-                        onFieldSubmitted: (_) => _submit(),
-                      ),
-                      if (_serverError != null) ...[
-                        const SizedBox(height: 16),
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            _serverError!,
-                            key: const ValueKey('login-server-error'),
-                            style: TextStyle(color: theme.colorScheme.error),
+                        if (_serverError != null) ...[
+                          const SizedBox(height: 16),
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              _serverError!,
+                              key: const ValueKey('login-server-error'),
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
                           ),
+                        ],
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          key: const ValueKey('login-submit'),
+                          onPressed: _isSubmitting ? null : _submit,
+                          child:
+                              _isSubmitting
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : const Text('Log in'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: _isSubmitting ? null : _openRegistration,
+                          child: const Text('Create an account'),
                         ),
                       ],
-                      const SizedBox(height: 24),
-                      FilledButton(
-                        key: const ValueKey('login-submit'),
-                        onPressed: _isSubmitting ? null : _submit,
-                        child:
-                            _isSubmitting
-                                ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                                : const Text('Log in'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextButton(
-                        onPressed: _isSubmitting ? null : _openRegistration,
-                        child: const Text('Create an account'),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

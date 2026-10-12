@@ -2,7 +2,9 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	resend "github.com/resend/resend-go/v4"
 )
@@ -30,6 +32,22 @@ func NewEmailService() *EmailService {
 	}
 }
 
+func isDevelopmentMode() bool {
+	env := strings.TrimSpace(strings.ToLower(os.Getenv("APP_ENV")))
+	return env == "" || env == "development" || env == "dev" || env == "local"
+}
+
+func isResendSandboxError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "you can only send testing emails to your own email address") ||
+		strings.Contains(msg, "resend.com/domains") ||
+		strings.Contains(msg, "sandbox")
+}
+
 // Sends the verification code required to activate a new account.
 func (s *EmailService) SendVerificationCode(
 	email string,
@@ -48,6 +66,14 @@ func (s *EmailService) SendVerificationCode(
 	}
 
 	_, err := s.client.Emails.Send(params)
+	if err == nil {
+		return nil
+	}
+
+	if isDevelopmentMode() && isResendSandboxError(err) {
+		log.Printf("[dev email fallback] Verification code for %s: %s", email, code)
+		return nil
+	}
 
 	return err
 }
