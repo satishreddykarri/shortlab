@@ -29,16 +29,6 @@ class AuthApi {
     }, expectedStatus: 201);
   }
 
-  Future<void> verifyEmail({
-    required String email,
-    required String code,
-  }) async {
-    await _client.postJson('/api/auth/verify-email', {
-      'email': email,
-      'code': code,
-    }, expectedStatus: 200);
-  }
-
   Future<void> login({required String email, required String password}) async {
     final response = await _client.postJson('/api/auth/login', {
       'email': email,

@@ -56,16 +56,6 @@ definitions:
       short_code:
         type: string
     type: object
-  handlers.VerifyEmailRequest:
-    properties:
-      code:
-        type: string
-      email:
-        type: string
-    required:
-    - code
-    - email
-    type: object
   services.ClickResponse:
     properties:
       clicked_at:
@@ -137,7 +127,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticates a verified user and returns a JWT token.
+      description: Authenticates a user and returns a JWT token.
       parameters:
       - description: Login credentials
         in: body
@@ -170,7 +160,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new user account and sends an email verification code.
+      description: Creates a new user account that can log in immediately.
       parameters:
       - description: Registration details
         in: body
@@ -197,40 +187,6 @@ paths:
             additionalProperties: true
             type: object
       summary: Register a new user
-      tags:
-      - Authentication
-  /api/auth/verify-email:
-    post:
-      consumes:
-      - application/json
-      description: Verifies a user's email using the verification code sent during
-        registration.
-      parameters:
-      - description: Verification details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.VerifyEmailRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Verify email address
       tags:
       - Authentication
   /api/urls:

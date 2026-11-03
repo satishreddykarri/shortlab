@@ -20,7 +20,6 @@ func SetupRouter(authService *services.AuthService, urlService *services.URLServ
 	authRoutes := router.Group("/api/auth")
 	{
 		authRoutes.POST("/register", authHandler.Register)
-		authRoutes.POST("/verify-email", authHandler.VerifyEmail)
 		authRoutes.POST("/login", authHandler.Login)
 	}
 

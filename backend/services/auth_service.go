@@ -15,7 +15,7 @@ type AuthService struct {
 	jwtService     *JWTService
 }
 
-// NewAuthService initializes authentication without an email service.
+// NewAuthService initializes authentication services.
 func NewAuthService(
 	userRepository *repositories.UserRepository,
 	jwtService *JWTService,
@@ -61,13 +61,11 @@ func (s *AuthService) Register(
 	}
 
 	user := &models.User{
-		ID:                     uuid.New(),
-		Name:                   name,
-		Email:                  email,
-		PasswordHash:           string(passwordHash),
-		IsEmailVerified:        true,
-		VerificationCode:       "",
-		VerificationCodeExpiry: nil,
+		ID:              uuid.New(),
+		Name:            name,
+		Email:           email,
+		PasswordHash:    string(passwordHash),
+		IsEmailVerified: true,
 	}
 
 	if err := s.userRepository.Create(user); err != nil {

@@ -126,6 +126,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
+    expect(
+      find.text('Registration successful. You can now log in.'),
+      findsOneWidget,
+    );
     expect(find.text('Check your inbox'), findsNothing);
     expect(client.requests, hasLength(1));
     expect(client.requests[0].url.path, '/api/auth/register');

@@ -55,6 +55,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         confirmPassword: _confirmPasswordController.text,
       );
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful. You can now log in.'),
+        ),
+      );
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => route.isFirst);

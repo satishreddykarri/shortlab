@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/auth/login": {
             "post": {
-                "description": "Authenticates a verified user and returns a JWT token.",
+                "description": "Authenticates a user and returns a JWT token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -66,7 +66,7 @@ const docTemplate = `{
         },
         "/api/auth/register": {
             "post": {
-                "description": "Creates a new user account and sends an email verification code.",
+                "description": "Creates a new user account that can log in immediately.",
                 "consumes": [
                     "application/json"
                 ],
@@ -105,55 +105,6 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/auth/verify-email": {
-            "post": {
-                "description": "Verifies a user's email using the verification code sent during registration.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Verify email address",
-                "parameters": [
-                    {
-                        "description": "Verification details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.VerifyEmailRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -509,21 +460,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "short_code": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.VerifyEmailRequest": {
-            "type": "object",
-            "required": [
-                "code",
-                "email"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 }
             }

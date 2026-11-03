@@ -26,7 +26,7 @@ type RegisterRequest struct {
 
 // Register godoc
 // @Summary Register a new user
-// @Description Creates a new user account and sends an email verification code.
+// @Description Creates a new user account that can log in immediately.
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -35,7 +35,7 @@ type RegisterRequest struct {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 409 {object} map[string]interface{}
 // @Router /api/auth/register [post]
-// Registers a new user and creates a verification code for email confirmation.
+// Registers a new user.
 func (h *AuthHandler) Register(c *gin.Context) {
 	var request RegisterRequest
 
@@ -66,38 +66,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-type VerifyEmailRequest struct {
-	Email string `json:"email" binding:"required,email"`
-	Code  string `json:"code" binding:"required,len=6"`
-}
-
-// VerifyEmail godoc
-// @Summary Verify email address
-// @Description Verifies a user's email using the verification code sent during registration.
-// @Tags Authentication
-// @Accept json
-// @Produce json
-// @Param request body VerifyEmailRequest true "Verification details"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /api/auth/verify-email [post]
-// Verifies the email address associated with a registration.
-func (h *AuthHandler) VerifyEmail(c *gin.Context) {
-	var request VerifyEmailRequest
-
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "email verified successfully",
-	})
-}
-
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
@@ -105,7 +73,7 @@ type LoginRequest struct {
 
 // Login godoc
 // @Summary Login
-// @Description Authenticates a verified user and returns a JWT token.
+// @Description Authenticates a user and returns a JWT token.
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -114,7 +82,7 @@ type LoginRequest struct {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
 // @Router /api/auth/login [post]
-// Authenticates a verified user and returns a JWT.
+// Authenticates a user and returns a JWT.
 func (h *AuthHandler) Login(c *gin.Context) {
 	var request LoginRequest
 
