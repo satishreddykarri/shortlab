@@ -64,12 +64,10 @@ func main() {
 		clickRepository,
 	)
 
-	emailService := services.NewEmailService()
 	jwtService := services.NewJWTService()
 
 	authService := services.NewAuthService(
 		userRepository,
-		emailService,
 		jwtService,
 	)
 

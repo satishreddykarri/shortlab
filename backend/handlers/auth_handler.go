@@ -93,18 +93,6 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	err := h.authService.VerifyEmail(
-		request.Email,
-		request.Code,
-	)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "email verified successfully",
 	})

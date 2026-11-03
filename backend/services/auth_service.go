@@ -1,10 +1,7 @@
 package services
 
 import (
-	"crypto/rand"
 	"errors"
-	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -15,19 +12,21 @@ import (
 
 type AuthService struct {
 	userRepository *repositories.UserRepository
-	emailService   *EmailService
 	jwtService     *JWTService
 }
 
-func NewAuthService(userRepository *repositories.UserRepository, emailService *EmailService, jwtService *JWTService) *AuthService {
+// NewAuthService initializes authentication without an email service.
+func NewAuthService(
+	userRepository *repositories.UserRepository,
+	jwtService *JWTService,
+) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
-		emailService:   emailService,
 		jwtService:     jwtService,
 	}
 }
 
-// Registers a user after validating the password confirmation and email uniqueness.
+// Register creates a new user after validating the password and email uniqueness.
 func (s *AuthService) Register(
 	name string,
 	email string,
@@ -57,7 +56,6 @@ func (s *AuthService) Register(
 		[]byte(password),
 		bcrypt.DefaultCost,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -79,66 +77,7 @@ func (s *AuthService) Register(
 	return user, nil
 }
 
-// Generates a cryptographically secure six-digit verification code.
-func generateVerificationCode() (string, error) {
-	var number uint32
-
-	err := binaryRead(&number)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%06d", number%1000000), nil
-}
-
-func binaryRead(number *uint32) error {
-	buffer := make([]byte, 4)
-
-	_, err := rand.Read(buffer)
-	if err != nil {
-		return err
-	}
-
-	*number = uint32(buffer[0])<<24 |
-		uint32(buffer[1])<<16 |
-		uint32(buffer[2])<<8 |
-		uint32(buffer[3])
-
-	return nil
-}
-
-// Verifies the user's email using the stored code and its expiration time.
-func (s *AuthService) VerifyEmail(
-	email string,
-	code string,
-) error {
-	user, err := s.userRepository.GetByEmail(email)
-
-	if err != nil {
-		return err
-	}
-
-	if user.IsEmailVerified {
-		return errors.New("email is already verified")
-	}
-
-	if user.VerificationCode != code {
-		return errors.New("invalid verification code")
-	}
-
-	if user.VerificationCodeExpiry == nil ||
-		time.Now().After(*user.VerificationCodeExpiry) {
-		return errors.New("verification code has expired")
-	}
-
-	user.IsEmailVerified = true
-	user.VerificationCode = ""
-	user.VerificationCodeExpiry = nil
-
-	return s.userRepository.Update(user)
-}
-
-// Authenticates a verified user and returns a signed JWT.
+// Login authenticates a user and returns a signed JWT.
 func (s *AuthService) Login(
 	email string,
 	password string,
@@ -153,7 +92,6 @@ func (s *AuthService) Login(
 		[]byte(user.PasswordHash),
 		[]byte(password),
 	)
-
 	if err != nil {
 		return "", errors.New("invalid email or password")
 	}
