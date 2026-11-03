@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 
@@ -26,47 +27,73 @@ import (
 // @name Authorization
 // @description Enter your JWT token with the Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIs...
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Load local environment variables.
+	// On Render, environment variables are supplied by the platform.
+	if err := godotenv.Load(); err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("Warning: could not load .env file: %v", err)
+		}
 	}
+
 	cfg := config.Load()
 
+	// Connect to the configured PostgreSQL database.
 	database.Connect()
 
-	err = database.DB.AutoMigrate(
+	// Run database migrations.
+	if err := database.DB.AutoMigrate(
 		&models.User{},
 		&models.URL{},
 		&models.URLClick{},
-	)
-
-	if err != nil {
+	); err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
-	// Build the authentication dependency chain.
+	// Initialize repositories.
 	userRepository := repositories.NewUserRepository(database.DB)
-	urlService := services.NewURLService(
-		repositories.NewURLRepository(database.DB),
-	)
+	urlRepository := repositories.NewURLRepository(database.DB)
 	clickRepository := repositories.NewURLClickRepository(database.DB)
-	clickService := services.NewURLClickService(
-		clickRepository,
-	)
+
+	// Initialize services.
+	urlService := services.NewURLService(urlRepository)
+
+	clickService := services.NewURLClickService(clickRepository)
+
 	analyticsService := services.NewURLAnalyticsService(
-		repositories.NewURLRepository(database.DB),
+		urlRepository,
 		clickRepository,
 	)
+
 	emailService := services.NewEmailService()
 	jwtService := services.NewJWTService()
-	authService := services.NewAuthService(userRepository, emailService, jwtService)
 
-	router := routes.SetupRouter(authService, urlService, clickService, analyticsService, jwtService, cfg.FrontendURL)
+	authService := services.NewAuthService(
+		userRepository,
+		emailService,
+		jwtService,
+	)
 
-	log.Println("ShortLab backend starting on :8080")
+	// Configure application routes.
+	router := routes.SetupRouter(
+		authService,
+		urlService,
+		clickService,
+		analyticsService,
+		jwtService,
+		cfg.FrontendURL,
+	)
 
-	if err := router.Run(":8080"); err != nil {
-		log.Fatal(err)
+	// Render provides PORT automatically.
+	// Use 8080 when running locally.
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("ShortLab backend starting on port %s", port)
+
+	// Listen on all network interfaces.
+	if err := router.Run("0.0.0.0:" + port); err != nil {
+		log.Fatal("Failed to start server:", err)
 	}
 }
